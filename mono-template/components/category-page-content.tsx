@@ -314,7 +314,7 @@ export function CategoryPageContent({ slug }: { slug: string }) {
                   className="relative w-full aspect-[4/3] overflow-hidden cursor-pointer bg-[#F5F5F5]"
                 >
                   <Image
-                    src={product.images[0]}
+                    src={product.primaryImage || product.images[0]}
                     alt={locale === "fr" ? product.nameFr : product.nameAr}
                     fill
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"

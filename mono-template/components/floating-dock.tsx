@@ -27,10 +27,15 @@ const navAr: NavItem[] = [
   { id: "about", hash: "#about", label: "من نحن", isCart: false },
 ]
 
-export function FloatingDock() {
+interface FloatingDockProps {
+  whatsappNumber?: string
+}
+
+export function FloatingDock({ whatsappNumber = "213550585884" }: FloatingDockProps) {
   const { locale, isRTL, setLocale } = useLanguage()
   const { toggleCart, cartCount } = useCart()
   const pathname = usePathname()
+  if (pathname?.startsWith("/afa5e04feb3266f1")) return null
   const isHome = pathname === "/"
   const nav = locale === "fr" ? navFr : navAr
 
@@ -132,7 +137,7 @@ export function FloatingDock() {
 
         {/* WhatsApp */}
         <a
-          href="https://wa.me/213550585884"
+          href={`https://wa.me/${whatsappNumber}`}
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF5722]/40 bg-[#FF5722]/10 hover:bg-[#FF5722]/20 transition-all text-xs text-neutral-800"

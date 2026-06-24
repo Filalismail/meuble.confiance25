@@ -5,6 +5,7 @@ import { headers } from "next/headers"
 import { after } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { trackServerEvent, extractClientHeaders } from "@/lib/analytics"
+import { getSiteSettings } from "@/lib/site-settings"
 
 // ── Zod Schemas ──────────────────────────────────────────────
 
@@ -31,8 +32,12 @@ const SubmitOrderPayloadSchema = z.object({
     .regex(/^0[567][0-9]{8}$/, "Numéro de téléphone invalide"),
   wilayaId: z.number().int().min(1).max(58),
   deliveryType: z.enum(["home", "desk"]),
-  note: z.string().max(500).default(""),
-  promoCode: z.string().max(20).default(""),
+  note: z
+    .string()
+    .max(500)
+    .regex(/^[a-zA-Z\u0600-\u06FF0-9\s.,!?()\-_@/:]*$/, "Caractères invalides")
+    .default(""),
+  promoCode: z.string().max(20).regex(/^[a-zA-Z0-9_-]*$/).default(""),
 })
 
 // ── Types ───────────────────────────────────────────────────
@@ -57,25 +62,27 @@ export async function submitOrder(
       headersList.get("x-real-ip") ??
       "unknown"
 
-    // ── 2. Check IP rate limit (in-DB, no external service) ─
-    const { data: rateLimitResult, error: rateLimitErr } =
-      await supabaseAdmin.rpc("check_ip_rate_limit", {
-        p_ip: clientIp,
-        p_window_seconds: 300,
-        p_max_requests: 5,
-      })
+    // ── 2. Check IP rate limit (skipped in development) ──
+    if (process.env.NODE_ENV !== "development") {
+      const { data: rateLimitResult, error: rateLimitErr } =
+        await supabaseAdmin.rpc("check_ip_rate_limit", {
+          p_ip: clientIp,
+          p_window_seconds: 300,
+          p_max_requests: 10,
+        })
 
-    if (rateLimitErr) {
-      console.error("Rate limit RPC error:", rateLimitErr)
-      return { success: false, error: "Erreur de validation" }
-    }
+      if (rateLimitErr) {
+        console.error("Rate limit RPC error:", rateLimitErr)
+        return { success: false, error: "Erreur de validation" }
+      }
 
-    if (!rateLimitResult?.allowed) {
-      return {
-        success: false,
-        error:
-          rateLimitResult?.message ??
-          "Trop de tentatives. Veuillez réessayer plus tard.",
+      if (!rateLimitResult?.allowed) {
+        return {
+          success: false,
+          error:
+            rateLimitResult?.message ??
+            "Trop de tentatives. Veuillez réessayer plus tard.",
+        }
       }
     }
 
@@ -179,6 +186,27 @@ export async function submitOrder(
       })
     }
 
+    // ── 5b. Prevent promo code reuse per phone number ──
+    if (promoCode) {
+      const normalized = phone.replace(/\D/g, "").slice(-9)
+      if (!normalized || normalized.length < 3) {
+        return { success: false, error: "Numéro de téléphone invalide" }
+      }
+      const { count } = await supabaseAdmin
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .filter("phone_number", "like", `%${normalized}`)
+        .eq("promo_code", promoCode)
+        .not("status", "eq", "cancelled")
+
+      if (count && count > 0) {
+        return {
+          success: false,
+          error: "Ce numéro de téléphone a déjà utilisé ce code promo.",
+        }
+      }
+    }
+
     // ── 6. Apply promo code (FOR UPDATE row lock) ──────────
     let discount = 0
     if (promoCode) {
@@ -220,10 +248,15 @@ export async function submitOrder(
       return { success: false, error: "Wilaya invalide" }
     }
 
-    const deliveryFee =
+    let deliveryFee =
       deliveryType === "home"
         ? Number(wilaya.shipping_home_fee)
         : Number(wilaya.shipping_desk_fee)
+
+    const settings = await getSiteSettings()
+    if (subtotal >= settings.deliveryThreshold) {
+      deliveryFee = 0
+    }
 
     const finalTotal = subtotal - discount + deliveryFee
 
@@ -241,6 +274,7 @@ export async function submitOrder(
       delivery_fee: deliveryFee,
       final_total: finalTotal,
       status: "pending",
+      promo_code: promoCode || "",
     })
 
     if (insertErr) {
@@ -275,5 +309,46 @@ export async function submitOrder(
   } catch (err) {
     console.error("submitOrder unexpected error:", err)
     return { success: false, error: "Erreur serveur" }
+  }
+}
+
+// ── Promo Code Validation (server-side, no anon key exposure) ──
+
+export interface CheckPromoResult {
+  valid: boolean
+  discountPercentage?: number
+  message: string
+}
+
+export async function checkPromoCode(
+  code: string,
+  subtotal: number,
+): Promise<CheckPromoResult> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("promo_codes")
+      .select("discount_percentage, is_active, current_uses, max_uses")
+      .eq("code", code)
+      .single()
+
+    if (error || !data) {
+      return { valid: false, message: "Code promo introuvable" }
+    }
+
+    if (!data.is_active) {
+      return { valid: false, message: "Code promo désactivé" }
+    }
+
+    if (data.current_uses >= data.max_uses) {
+      return { valid: false, message: "Code promo déjà épuisé" }
+    }
+
+    return {
+      valid: true,
+      discountPercentage: data.discount_percentage,
+      message: "",
+    }
+  } catch {
+    return { valid: false, message: "Erreur serveur" }
   }
 }

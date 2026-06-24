@@ -15,6 +15,7 @@ function mapProduct(row: any, categorySlug: string): Product {
     basePrice: Number(row.base_price),
     currency: "DA",
     categorySlug,
+    sortOrder: row.sort_order ?? 0,
     optionsConfig: row.options_config ?? {},
   }
 }
@@ -39,6 +40,7 @@ function mapWilaya(row: any): Wilaya {
     nameFr: row.name_fr,
     shippingHomeFee: Number(row.shipping_home_fee),
     shippingDeskFee: Number(row.shipping_desk_fee),
+    isActive: row.is_active ?? true,
   }
 }
 
@@ -71,9 +73,9 @@ export async function fetchProductsByCategorySlug(slug: string): Promise<Product
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config")
+    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, sort_order")
     .eq("category_id", category.id)
-    .order("created_at", { ascending: true })
+    .order("sort_order", { ascending: true })
 
   if (error || !data) return []
   return data.map((row) => mapProduct(row, slug))
@@ -82,7 +84,7 @@ export async function fetchProductsByCategorySlug(slug: string): Promise<Product
 export async function fetchProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories!inner(slug)")
+    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .eq("id", id)
     .single()
 
@@ -93,7 +95,7 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 export async function fetchAllProducts(): Promise<Product[]> {
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories!inner(slug)")
+    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .order("created_at", { ascending: true })
 
   if (error || !products) return []
@@ -103,7 +105,7 @@ export async function fetchAllProducts(): Promise<Product[]> {
 export async function fetchFeaturedProducts(): Promise<Product[]> {
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories!inner(slug)")
+    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .eq("is_featured", true)
 
   if (error || !products) return []
@@ -124,7 +126,7 @@ export async function fetchWilayas(): Promise<Wilaya[]> {
 export async function fetchPromoCode(code: string): Promise<PromoCode | null> {
   const { data, error } = await supabase
     .from("promo_codes")
-    .select("id, code, discount_percentage, is_active")
+    .select("id, code, discount_percentage, is_active, max_uses, current_uses, created_at")
     .eq("code", code)
     .eq("is_active", true)
     .maybeSingle()
@@ -135,6 +137,9 @@ export async function fetchPromoCode(code: string): Promise<PromoCode | null> {
     code: data.code,
     discountPercentage: data.discount_percentage,
     isActive: data.is_active,
+    maxUses: data.max_uses,
+    currentUses: data.current_uses,
+    createdAt: data.created_at,
   }
 }
 

@@ -3,7 +3,7 @@ import { join } from 'path';
 import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://upcrqpiotnrybbcazwso.supabase.co';
+const SUPABASE_URL = env.SUPABASE_URL || 'https://upcrqpiotnrybbcazwso.supabase.co';
 const PICTURES_DIR = 'C:\\Users\\filali\\Desktop\\open code\\Pictures of our product types';
 
 const MIME_TYPES = {

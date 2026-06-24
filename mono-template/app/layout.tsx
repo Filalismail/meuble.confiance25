@@ -4,8 +4,10 @@ import { Inter, Tajawal } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LanguageProvider } from "@/components/language-provider"
 import { CartProvider } from "@/components/cart-context"
-import { FloatingDock } from "@/components/floating-dock"
+import { FloatingDockWrapper } from "@/components/floating-dock-wrapper"
 import { CartSection } from "@/components/cart-section"
+import { PrivacyBanner } from "@/components/privacy-banner"
+import { VisitTracker } from "@/components/visit-tracker"
 import "./globals.css"
 
 const inter = Inter({
@@ -21,20 +23,24 @@ const tajawal = Tajawal({
   display: "swap",
 })
 
-export const metadata: Metadata = {
-  title: "مملكة الثقة 25 | Kingdom of Thika 25",
-  description:
-    "Premium furniture e-commerce based in Constantine, Algeria. Mobilier de luxe, qualité et confiance depuis 2025.",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/logo.jpg",
-  },
-  openGraph: {
-    title: "مملكة الثقة 25 | Kingdom of Thika 25",
-    description:
-      "Premium furniture e-commerce based in Constantine, Algeria.",
-    images: ["/logo.jpg"],
-  },
+import { getSiteSettings } from "@/lib/site-settings"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings()
+  const title = `${settings.shopNameAr} | ${settings.shopName}`
+  return {
+    title,
+    description: `${settings.shopTagline}. Premium furniture e-commerce based in Constantine, Algeria.`,
+    icons: {
+      icon: "/favicon.ico",
+      apple: "/logo.jpg",
+    },
+    openGraph: {
+      title,
+      description: settings.shopTagline,
+      images: ["/logo.jpg"],
+    },
+  }
 }
 
 export default function RootLayout({
@@ -50,11 +56,13 @@ export default function RootLayout({
         <LanguageProvider>
           <CartProvider>
             <div className="pb-24 md:pb-28">{children}</div>
-            <FloatingDock />
+            <FloatingDockWrapper />
             <CartSection />
+            <PrivacyBanner />
           </CartProvider>
         </LanguageProvider>
         <Analytics />
+        <VisitTracker />
       </body>
     </html>
   )

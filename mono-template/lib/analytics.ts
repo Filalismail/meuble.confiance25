@@ -8,6 +8,7 @@ export type AnalyticsEventType =
   | "checkout_success"
   | "category_view"
   | "promo_applied"
+  | "page_view"
 
 export interface AnalyticsMetadata {
   product_id?: string
@@ -62,6 +63,7 @@ export function extractClientHeaders(
 } {
   const forwardedFor = requestHeaders.get("x-forwarded-for")
   const ip =
+    requestHeaders.get("cf-connecting-ip") ??
     forwardedFor?.split(",")[0]?.trim() ??
     requestHeaders.get("x-real-ip") ??
     "unknown"
@@ -103,16 +105,34 @@ export function extractClientHeaders(
         } else if (hostname === "wa.me" || hostname === "api.whatsapp.com") {
           source = "whatsapp"
         } else if (
+          hostname === "vm.tiktok.com" ||
+          hostname === "tiktok.com" ||
+          hostname === "www.tiktok.com" ||
+          hostname === "m.tiktok.com"
+        ) {
+          source = "tiktok"
+        } else if (
           hostname === "www.google.com" ||
           hostname === "google.com" ||
           hostname.endsWith(".google.com")
         ) {
           source = "google_organic"
-        } else {
+            } else {
           source = "referral"
         }
       } catch {
         // ignore invalid referer URL
+      }
+    }
+
+    if (source === "direct" || source === "referral") {
+      const referer = requestHeaders.get("referer")
+      if (referer) {
+        try {
+          const refUrl = new URL(referer)
+          const refUtm = refUrl.searchParams.get("utm_source")
+          if (refUtm) source = refUtm
+        } catch {}
       }
     }
   }

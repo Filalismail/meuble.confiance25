@@ -52,6 +52,16 @@ export function ProductQuickView({ product, onClose }: Props) {
     [product, selections],
   )
 
+  const galleryImages = useMemo(
+    () =>
+      product.images.length > 0
+        ? product.images
+        : product.primaryImage
+          ? [product.primaryImage]
+          : [],
+    [product.images, product.primaryImage],
+  )
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose()
@@ -71,12 +81,12 @@ export function ProductQuickView({ product, onClose }: Props) {
   }, [onClose, product.id, product.categorySlug])
 
   const prevImage = useCallback(() => {
-    setImgIndex((i) => (i === 0 ? product.images.length - 1 : i - 1))
-  }, [product.images.length])
+    setImgIndex((i) => (i === 0 ? galleryImages.length - 1 : i - 1))
+  }, [galleryImages.length])
 
   const nextImage = useCallback(() => {
-    setImgIndex((i) => (i === product.images.length - 1 ? 0 : i + 1))
-  }, [product.images.length])
+    setImgIndex((i) => (i === galleryImages.length - 1 ? 0 : i + 1))
+  }, [galleryImages.length])
 
   const handleSelectionChange = (groupKey: string, value: string) => {
     setSelections((prev) => ({ ...prev, [groupKey]: value }))
@@ -97,7 +107,7 @@ export function ProductQuickView({ product, onClose }: Props) {
       selections,
       labels,
       unitPrice,
-      product.images[imgIndex],
+      galleryImages[imgIndex],
     )
     fetch("/api/track", {
       method: "POST",
@@ -137,7 +147,7 @@ export function ProductQuickView({ product, onClose }: Props) {
 
         {/* Left — Image Gallery */}
         <div className="relative w-full md:w-[55%] aspect-square md:aspect-auto md:min-h-[500px] bg-[#F5F5F5] rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none overflow-hidden shrink-0">
-          {product.images.map((src, idx) => (
+          {galleryImages.map((src, idx) => (
             <div
               key={idx}
               className={`absolute inset-0 transition-opacity duration-400 ${
@@ -154,7 +164,7 @@ export function ProductQuickView({ product, onClose }: Props) {
             </div>
           ))}
 
-          {product.images.length > 1 && (
+          {galleryImages.length > 1 && (
             <>
               <button
                 onClick={prevImage}
@@ -176,7 +186,7 @@ export function ProductQuickView({ product, onClose }: Props) {
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-                {product.images.map((_, idx) => (
+                {galleryImages.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setImgIndex(idx)}

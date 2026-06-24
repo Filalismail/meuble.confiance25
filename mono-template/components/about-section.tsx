@@ -3,7 +3,12 @@
 import { useLanguage } from "@/components/language-provider"
 import Image from "next/image"
 
-export function AboutSection() {
+interface AboutSectionProps {
+  shopName?: string
+  shopNameAr?: string
+}
+
+export function AboutSection({ shopName = "Thika 25", shopNameAr = "ثقة 25" }: AboutSectionProps) {
   const { locale, isRTL } = useLanguage()
 
   return (
@@ -44,8 +49,8 @@ export function AboutSection() {
           >
             <p className="text-muted-foreground text-sm leading-relaxed md:text-base md:leading-relaxed">
               {locale === "fr"
-                ? "Basée à Constantine, مملكة الثقة 25 (Kingdom of Thika 25) est une destination premium pour l'ameublement de luxe. Depuis 2025, nous sélectionnons des pièces d'exception alliant artisanat traditionnel et design contemporain. Chaque meuble raconte une histoire de qualité, de confiance et d'élégance intemporelle."
-                : "مقرها في قسنطينة، مملكة الثقة 25 هي وجهة متميزة للأثاث الفاخر. منذ عام 2025، نختار قطعاً استثنائية تجمع بين الحرفية التقليدية والتصميم المعاصر. كل قطعة أثاث تحكي قصة الجودة والثقة والأناقة الخالدة."}
+                ? `Basée à Constantine, مملكة ${shopNameAr} (Kingdom of ${shopName}) est une destination premium pour l'ameublement de luxe. Depuis 2025, nous sélectionnons des pièces d'exception alliant artisanat traditionnel et design contemporain. Chaque meuble raconte une histoire de qualité, de confiance et d'élégance intemporelle.`
+                : `مقرها في قسنطينة، مملكة ${shopNameAr} هي وجهة متميزة للأثاث الفاخر. منذ عام 2025، نختار قطعاً استثنائية تجمع بين الحرفية التقليدية والتصميم المعاصر. كل قطعة أثاث تحكي قصة الجودة والثقة والأناقة الخالدة.`}
             </p>
             <div className="mt-6 flex items-center gap-4">
               <div className="w-8 h-[1px] bg-[#FF5722]/40" />

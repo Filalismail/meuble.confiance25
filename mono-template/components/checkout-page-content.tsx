@@ -6,7 +6,7 @@ import { useLanguage } from "@/components/language-provider"
 import { useCart } from "@/components/cart-context"
 import { SuccessModal } from "@/components/success-modal"
 import { supabase } from "@/lib/supabase"
-import { submitOrder } from "@/lib/actions"
+import { submitOrder, checkPromoCode } from "@/lib/actions"
 import type { Wilaya, PromoCode } from "@/lib/types"
 
 function fmt(n: number, locale: string) {
@@ -20,7 +20,17 @@ function currencySymbol(locale: string) {
   return locale === "ar" ? "\u062F.\u062C" : "DA"
 }
 
-export function CheckoutPageContent() {
+interface Props {
+  deliveryThreshold: number
+  deliveryThresholdLabelFr: string
+  deliveryThresholdLabelAr: string
+}
+
+export function CheckoutPageContent({
+  deliveryThreshold,
+  deliveryThresholdLabelFr,
+  deliveryThresholdLabelAr,
+}: Props) {
   const { locale, isRTL } = useLanguage()
   const { items, cartTotal, clearCart } = useCart()
 
@@ -54,6 +64,7 @@ export function CheckoutPageContent() {
             nameFr: r.name_fr,
             shippingHomeFee: Number(r.shipping_home_fee),
             shippingDeskFee: Number(r.shipping_desk_fee),
+            isActive: true,
           })))
         }
       })
@@ -66,10 +77,11 @@ export function CheckoutPageContent() {
 
   const deliveryFee = useMemo(() => {
     if (!selectedWilaya) return 0
+    if (cartTotal >= deliveryThreshold) return 0
     return deliveryType === "home"
       ? selectedWilaya.shippingHomeFee
       : selectedWilaya.shippingDeskFee
-  }, [selectedWilaya, deliveryType])
+  }, [selectedWilaya, deliveryType, cartTotal, deliveryThreshold])
 
   const discount = promoData
     ? Math.round(cartTotal * (promoData.discountPercentage / 100))
@@ -86,29 +98,27 @@ export function CheckoutPageContent() {
     }
     setPromoLoading(true)
     setPromoMessage("")
-    const { data, error } = await supabase
-      .from("promo_codes")
-      .select("*")
-      .eq("code", code)
-      .eq("is_active", true)
-      .maybeSingle()
-    if (data && !error) {
+
+    const result = await checkPromoCode(code, cartTotal)
+
+    if (result.valid && result.discountPercentage) {
       setPromoData({
-        id: data.id,
-        code: data.code,
-        discountPercentage: data.discount_percentage,
-        isActive: data.is_active,
-      })
+        id: "",
+        code,
+        discountPercentage: result.discountPercentage,
+        isActive: true,
+        maxUses: 1,
+        currentUses: 0,
+        createdAt: "",
+      } as PromoCode)
       setPromoMessage(
         locale === "fr"
-          ? `Code promo appliqué ! -${data.discount_percentage}%`
-          : `!تم تطبيق كود الخصم ${data.discount_percentage}-%`,
+          ? `Code promo appliqué ! -${result.discountPercentage}%`
+          : `!تم تطبيق كود الخصم ${result.discountPercentage}-%`,
       )
     } else {
       setPromoData(null)
-      setPromoMessage(
-        locale === "fr" ? "Code promo invalide" : "كود الخصم غير صالح",
-      )
+      setPromoMessage(result.message || (locale === "fr" ? "Code promo invalide" : "كود الخصم غير صالح"))
     }
     setPromoLoading(false)
   }
@@ -229,7 +239,7 @@ export function CheckoutPageContent() {
                     >
                       <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-[#F5F5F5] shadow-[0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-white/50">
                         <Image
-                          src={item.image || item.product.images[0]}
+                          src={item.image || item.product.primaryImage || item.product.images[0]}
                           alt=""
                           width={56}
                           height={56}
@@ -321,6 +331,18 @@ export function CheckoutPageContent() {
                       : `${fmt(deliveryFee, locale)} ${currencySymbol(locale)}`}
                   </span>
                 </div>
+                {cartTotal < deliveryThreshold && (
+                  <p className={`text-[11px] text-[#FF5722]/70 mt-1 ${isRTL ? "text-right font-[family-name:var(--font-tajawal)]" : ""}`}>
+                    {locale === "fr"
+                      ? `+ ${fmt(deliveryThreshold - cartTotal, locale)} DA pour la livraison gratuite`
+                      : `+ ${fmt(deliveryThreshold - cartTotal, locale)} د.ج للتوصيل المجاني`}
+                  </p>
+                )}
+                {cartTotal >= deliveryThreshold && (
+                  <p className={`text-[11px] text-emerald-600 mt-1 ${isRTL ? "text-right font-[family-name:var(--font-tajawal)]" : ""}`}>
+                    {locale === "fr" ? deliveryThresholdLabelFr : deliveryThresholdLabelAr}
+                  </p>
+                )}
                 <div className="flex items-center justify-between pt-3 border-t border-[#E5E5E5]/40">
                   <span
                     className={`text-base font-medium text-[#0A0A0A] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
@@ -504,7 +526,7 @@ export function CheckoutPageContent() {
                   </label>
                   <textarea
                     value={note}
-                    onChange={(e) => setNote(e.target.value)}
+                    onChange={(e) => setNote(e.target.value.replace(/[<>]/g, ""))}
                     rows={3}
                     className={`w-full px-4 py-3 rounded-xl border border-[#E5E5E5]/70 bg-white/50 text-sm text-neutral-800 focus:outline-none focus:border-[#FF5722]/40 focus:ring-1 focus:ring-[#FF5722]/20 transition-all placeholder:text-neutral-300 resize-none ${isRTL ? "font-[family-name:var(--font-tajawal)] text-right" : ""}`}
                     placeholder={

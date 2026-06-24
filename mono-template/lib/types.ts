@@ -24,6 +24,7 @@ export interface Product {
   basePrice: number
   currency: string
   categorySlug: string
+  sortOrder: number
   optionsConfig: Record<string, OptionsGroup>
 }
 
@@ -44,6 +45,50 @@ export interface Wilaya {
   nameFr: string
   shippingHomeFee: number
   shippingDeskFee: number
+  isActive: boolean
+}
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+
+export interface OrderLineItem {
+  product_id: string
+  name_ar: string
+  name_fr: string
+  quantity: number
+  unit_price: number
+  selected_options: Record<string, Record<string, string>>
+  line_total: number
+}
+
+export interface Order {
+  id: string
+  customerFirstName: string
+  customerLastName: string
+  phoneNumber: string
+  wilayaId: number
+  deliveryType: "home" | "desk"
+  orderNote: string
+  itemsJson: OrderLineItem[]
+  subtotal: number
+  discountApplied: number
+  deliveryFee: number
+  finalTotal: number
+  status: OrderStatus
+  createdAt: string
+}
+
+export interface DailyAnalyticsSummary {
+  id: string
+  summaryDate: string
+  metricType: string
+  metricKey: string
+  metricData: Record<string, unknown>
+  updatedAt: string
 }
 
 export interface PromoCode {
@@ -51,6 +96,9 @@ export interface PromoCode {
   code: string
   discountPercentage: number
   isActive: boolean
+  maxUses: number
+  currentUses: number
+  createdAt: string
 }
 
 export interface Faq {

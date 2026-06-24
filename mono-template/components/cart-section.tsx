@@ -2,12 +2,17 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useCart } from "@/components/cart-context"
 import { useLanguage } from "@/components/language-provider"
+import { localeSafe } from "@/lib/locale-safe"
 
 export function CartSection() {
   const { isOpen, closeCart, items, cartCount, cartTotal, removeFromCart, updateQuantity } = useCart()
   const { locale, isRTL } = useLanguage()
+  const pathname = usePathname()
+
+  if (pathname?.startsWith("/afa5e04feb3266f1")) return null
 
   return (
     <>
@@ -78,7 +83,7 @@ export function CartSection() {
                 {/* Product thumbnail */}
                 <div className="w-20 h-20 md:w-16 md:h-16 rounded-xl overflow-hidden shrink-0 bg-[#F5F5F5] shadow-[0_4px_16px_rgba(0,0,0,0.06)] ring-1 ring-white/60">
                   <Image
-                    src={item.image || item.product.images[0]}
+                    src={item.image || item.product.primaryImage || item.product.images[0]}
                     alt=""
                     width={80}
                     height={80}
@@ -98,7 +103,7 @@ export function CartSection() {
                     </p>
                   )}
                   <p className="text-[#FF5722] text-xs mt-0.5 font-medium">
-                    {(item.unitPrice * item.quantity).toLocaleString()} {item.product.currency}
+                    {localeSafe(item.unitPrice * item.quantity)} {item.product.currency}
                   </p>
                 </div>
 
@@ -146,7 +151,7 @@ export function CartSection() {
                 {locale === "fr" ? "Total" : "المجموع"}
               </span>
               <span className="text-lg font-medium text-[#0A0A0A]">
-                {cartTotal.toLocaleString()} DA
+                {localeSafe(cartTotal)} DA
               </span>
             </div>
             <Link
