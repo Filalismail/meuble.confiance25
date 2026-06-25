@@ -7,6 +7,22 @@ const ADMIN_PREFIX =
     : "/afa5e04feb3266f1"
 const LOGIN_PATH = ADMIN_PREFIX
 
+function buildCsp(nonce: string): string {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' https://upcrqpiotnrybbcazwso.supabase.co data: blob:",
+    "connect-src 'self' https://upcrqpiotnrybbcazwso.supabase.co https://*.supabase.co",
+    "font-src 'self' https://fonts.gstatic.com",
+    "frame-src 'self' https://www.google.com https://maps.google.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "form-action 'self'",
+  ].join("; ")
+}
+
 async function verifySessionCookie(value: string): Promise<boolean> {
   const dot = value.lastIndexOf(".")
   if (dot === -1) return false
@@ -50,20 +66,29 @@ async function verifySessionCookie(value: string): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
+  const nonce = crypto.randomUUID()
+
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-nonce", nonce)
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+
+  response.headers.set("Content-Security-Policy", buildCsp(nonce))
+
   const { pathname } = request.nextUrl
 
-  if (!pathname.startsWith(ADMIN_PREFIX)) return NextResponse.next()
-
-  if (pathname === LOGIN_PATH) return NextResponse.next()
-
-  const sessionCookie = request.cookies.get("admin_session")
-  if (!sessionCookie?.value || !(await verifySessionCookie(sessionCookie.value))) {
-    return NextResponse.redirect(new URL(LOGIN_PATH, request.url))
+  if (pathname.startsWith(ADMIN_PREFIX) && pathname !== LOGIN_PATH) {
+    const sessionCookie = request.cookies.get("admin_session")
+    if (!sessionCookie?.value || !(await verifySessionCookie(sessionCookie.value))) {
+      return NextResponse.redirect(new URL(LOGIN_PATH, request.url))
+    }
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
-  matcher: "/afa5e04feb3266f1/:path*",
+  matcher: "/((?!_next/static|_next/image|favicon.ico).*)",
 }

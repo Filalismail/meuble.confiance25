@@ -1,8 +1,4 @@
 /** @type {import('next').NextConfig} */
-const isDev = process.env.NODE_ENV !== "production"
-
-const scriptSrc = ["'self'", "'unsafe-inline'"]
-if (isDev) scriptSrc.push("'unsafe-eval'")
 
 const nextConfig = {
   typescript: {
@@ -30,22 +26,6 @@ const nextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "img-src 'self' https://upcrqpiotnrybbcazwso.supabase.co data: blob:",
-              "style-src 'self' 'unsafe-inline'",
-              `script-src ${scriptSrc.join(" ")}`,
-              "connect-src 'self' https://upcrqpiotnrybbcazwso.supabase.co https://*.supabase.co",
-              "font-src 'self' https://fonts.gstatic.com",
-              "frame-src 'self' https://www.google.com https://maps.google.com",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "object-src 'none'",
-              "form-action 'self'",
-            ].join("; "),
-          },
         ],
       },
     ]
