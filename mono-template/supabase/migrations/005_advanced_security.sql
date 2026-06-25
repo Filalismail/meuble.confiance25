@@ -14,22 +14,17 @@ CREATE TABLE IF NOT EXISTS ip_rate_limits (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Speed up COUNT queries by IP + time window
+-- Speed up COUNT/DELETE queries by IP + time window
 CREATE INDEX IF NOT EXISTS idx_ip_rate_limits_ip_created
   ON ip_rate_limits (ip, created_at);
 
--- Auto-cleanup: delete rows older than 1 hour (runs probabilistically)
-CREATE OR REPLACE FUNCTION cleanup_ip_rate_limits()
-RETURNS void
-LANGUAGE plpgsql
-SET search_path = ''
-AS $$
-BEGIN
-  DELETE FROM public.ip_rate_limits
-  WHERE created_at < NOW() - INTERVAL '1 hour';
-END;
-$$;
-
+-- check_ip_rate_limit:
+--  1. Purge entries outside the window for this IP
+--  2. Count remaining entries
+--  3. Deny if at or over p_max_requests
+--  4. Allow: insert entry, then cap to p_max_requests
+-- This guarantees no IP can ever accumulate more than p_max_requests entries,
+-- and after p_window_seconds of inactivity the IP has zero entries.
 CREATE OR REPLACE FUNCTION check_ip_rate_limit(
   p_ip              TEXT,
   p_window_seconds  INT DEFAULT 300,
@@ -47,11 +42,17 @@ BEGIN
   -- Uses a transaction-level advisory keyed on a hash of the IP
   PERFORM pg_advisory_xact_lock(hashtext('ip_rl_' || p_ip));
 
+  -- 1. Purge entries outside the window for this IP
+  DELETE FROM public.ip_rate_limits
+  WHERE ip = p_ip
+    AND created_at < NOW() - (p_window_seconds || ' seconds')::INTERVAL;
+
+  -- 2. Count remaining (within window)
   SELECT COUNT(*) INTO v_count
   FROM public.ip_rate_limits
-  WHERE ip = p_ip
-    AND created_at > NOW() - (p_window_seconds || ' seconds')::INTERVAL;
+  WHERE ip = p_ip;
 
+  -- 3. Deny if at or over limit
   IF v_count >= p_max_requests THEN
     v_result := jsonb_build_object(
       'allowed', false,
@@ -61,13 +62,18 @@ BEGIN
     RETURN v_result;
   END IF;
 
-  -- Log this request
+  -- 4. Log this request
   INSERT INTO public.ip_rate_limits (ip) VALUES (p_ip);
 
-  -- Opportunistic cleanup (~1% chance to keep table trim)
-  IF random() < 0.01 THEN
-    PERFORM cleanup_ip_rate_limits();
-  END IF;
+  -- 5. Cap at p_max_requests (keep only the newest entries per IP)
+  DELETE FROM public.ip_rate_limits
+  WHERE ip = p_ip
+    AND id NOT IN (
+      SELECT id FROM public.ip_rate_limits
+      WHERE ip = p_ip
+      ORDER BY created_at DESC
+      LIMIT p_max_requests
+    );
 
   v_result := jsonb_build_object(
     'allowed', true,
@@ -79,7 +85,6 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION check_ip_rate_limit(TEXT, INT, INT) TO anon;
-GRANT EXECUTE ON FUNCTION cleanup_ip_rate_limits() TO anon;
 
 -- =============================================================
 -- PART 2 — Race Condition Fix: Promo Code with FOR UPDATE
