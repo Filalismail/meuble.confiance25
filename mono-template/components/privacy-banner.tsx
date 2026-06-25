@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback } from "react"
 import { usePathname } from "next/navigation"
 import { useLanguage } from "@/components/language-provider"
+import { useAdminPrefix } from "@/components/admin-context"
 
 export function PrivacyBanner() {
   const pathname = usePathname()
   const { locale, isRTL } = useLanguage()
   const [isVisible, setIsVisible] = useState(false)
-  const isAdmin = pathname.startsWith("/afa5e04feb3266f1")
+  const adminPrefix = useAdminPrefix()
+  const isAdmin = pathname.startsWith(adminPrefix)
 
   useEffect(() => {
     const hasConsented = localStorage.getItem("thika25_privacy_consent")

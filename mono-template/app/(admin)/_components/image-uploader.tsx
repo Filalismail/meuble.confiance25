@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import Image from "next/image"
 import { Upload, X } from "lucide-react"
+import { useAdminPrefix } from "@/components/admin-context"
 
 interface Props {
   bucket?: string
@@ -17,6 +18,7 @@ export function ImageUploader({
   currentImage,
   onUpload,
 }: Props) {
+  const adminPrefix = useAdminPrefix()
   const [preview, setPreview] = useState(currentImage || "")
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
@@ -43,7 +45,7 @@ export function ImageUploader({
     fd.append("folder", folder)
 
     try {
-      const res = await fetch("/afa5e04feb3266f1/api/upload", {
+      const res = await fetch(`${adminPrefix}/api/upload`, {
         method: "POST",
         body: fd,
       })

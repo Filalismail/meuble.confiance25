@@ -9,16 +9,23 @@ function getSecret(): string {
   return secret
 }
 
-function b64encode(data: string): string {
-  return Buffer.from(data, "utf-8").toString("base64")
+function b64urlEncode(data: string): string {
+  return Buffer.from(data, "utf-8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
 }
 
-function b64decode(data: string): string {
-  return Buffer.from(data, "base64").toString("utf-8")
+function b64urlDecode(data: string): string {
+  return Buffer.from(
+    data.replace(/-/g, "+").replace(/_/g, "/"),
+    "base64",
+  ).toString("utf-8")
 }
 
 export function sign(payload: string): string {
-  const encoded = b64encode(payload)
+  const encoded = b64urlEncode(payload)
   const hmac = createHmac("sha256", getSecret())
   hmac.update(encoded)
   return encoded + "." + hmac.digest("hex")
@@ -32,14 +39,17 @@ export function verify(signed: string): string | null {
   const expected = createHmac("sha256", getSecret()).update(encoded).digest("hex")
   try {
     if (timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-      return b64decode(encoded)
+      return b64urlDecode(encoded)
     }
-  } catch {}
+  } catch {
+    return null
+  }
   return null
 }
 
 export interface AdminSession {
   authenticated: true
+  jti: string
   loggedInAt: string
 }
 
@@ -54,9 +64,10 @@ export async function verifyAdminSession(): Promise<AdminSession | null> {
     if (parsed?.authenticated !== true) return null
     const maxAge = 8 * 60 * 60 * 1000
     const loggedInAt = new Date(parsed.loggedInAt).getTime()
-    if (Date.now() - loggedInAt > maxAge) return null
+    if (isNaN(loggedInAt) || Date.now() - loggedInAt > maxAge) return null
     return parsed as AdminSession
-  } catch {
+  } catch (e) {
+    console.error("verifyAdminSession error:", e)
     return null
   }
 }

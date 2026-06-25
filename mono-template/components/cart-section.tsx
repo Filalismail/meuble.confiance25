@@ -5,14 +5,16 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCart } from "@/components/cart-context"
 import { useLanguage } from "@/components/language-provider"
+import { useAdminPrefix } from "@/components/admin-context"
 import { localeSafe } from "@/lib/locale-safe"
 
 export function CartSection() {
   const { isOpen, closeCart, items, cartCount, cartTotal, removeFromCart, updateQuantity } = useCart()
   const { locale, isRTL } = useLanguage()
   const pathname = usePathname()
+  const adminPrefix = useAdminPrefix()
 
-  if (pathname?.startsWith("/afa5e04feb3266f1")) return null
+  if (pathname?.startsWith(adminPrefix)) return null
 
   return (
     <>

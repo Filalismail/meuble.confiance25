@@ -1,11 +1,16 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { ADMIN_PREFIX } from "@/lib/admin-config"
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const cookieStore = await cookies()
   cookieStore.delete("admin_session")
-  const host = request.headers.get("host") || "localhost:3000"
-  const protocol = host?.includes("localhost") && process.env.NODE_ENV !== "production" ? "http" : "https"
-  const origin = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-  return NextResponse.redirect(new URL("/afa5e04feb3266f1", origin))
+
+  const origin = process.env.NEXT_PUBLIC_BASE_URL
+  if (!origin) {
+    console.error("NEXT_PUBLIC_BASE_URL is not configured — logout redirect may fail")
+    return NextResponse.redirect(new URL(ADMIN_PREFIX, "http://localhost:3000"))
+  }
+
+  return NextResponse.redirect(new URL(ADMIN_PREFIX, origin))
 }

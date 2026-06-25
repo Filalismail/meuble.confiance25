@@ -2,6 +2,7 @@
 
 import { useLanguage } from "@/components/language-provider"
 import { useCart } from "@/components/cart-context"
+import { useAdminPrefix } from "@/components/admin-context"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -35,7 +36,8 @@ export function FloatingDock({ whatsappNumber = "213550585884" }: FloatingDockPr
   const { locale, isRTL, setLocale } = useLanguage()
   const { toggleCart, cartCount } = useCart()
   const pathname = usePathname()
-  if (pathname?.startsWith("/afa5e04feb3266f1")) return null
+  const adminPrefix = useAdminPrefix()
+  if (pathname?.startsWith(adminPrefix)) return null
   const isHome = pathname === "/"
   const nav = locale === "fr" ? navFr : navAr
 

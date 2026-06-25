@@ -11,7 +11,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <h1 className="text-2xl font-medium text-[#0A0A0A]">Thika 25</h1>
-          <p className="text-sm text-neutral-500 mt-1">Administration</p>
+          <p className="text-sm text-neutral-500 mt-1">Accès réservé</p>
         </div>
         <form
           action={formAction}

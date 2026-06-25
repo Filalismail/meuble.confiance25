@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
+import { useAdminPrefix } from "@/components/admin-context"
 
 function detectSource(): string {
   const params = new URLSearchParams(window.location.search)
@@ -32,8 +33,10 @@ const trackedRef = { current: "" }
 
 export function VisitTracker() {
   const pathname = usePathname()
+  const adminPrefix = useAdminPrefix()
 
   useEffect(() => {
+    if (pathname?.startsWith(adminPrefix)) return
     if (trackedRef.current === pathname) return
     trackedRef.current = pathname
     const source = detectSource()
@@ -45,7 +48,7 @@ export function VisitTracker() {
         metadata: { source },
       }),
     }).catch(() => {})
-  }, [pathname])
+  }, [pathname, adminPrefix])
 
   return null
 }

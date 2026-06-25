@@ -76,12 +76,14 @@ export async function submitOrder(
         return { success: false, error: "Erreur de validation" }
       }
 
-      if (!rateLimitResult?.allowed) {
+      if (!rateLimitResult) {
+        console.warn("Rate limit RPC returned null data, allowing request:", clientIp)
+      } else if (!rateLimitResult.allowed) {
+        console.warn("Rate limit hit for IP:", clientIp)
         return {
           success: false,
           error:
-            rateLimitResult?.message ??
-            "Trop de tentatives. Veuillez réessayer plus tard.",
+            "Trop de tentatives. Veuillez attendre 5 minutes avant de réessayer.",
         }
       }
     }
@@ -188,14 +190,15 @@ export async function submitOrder(
 
     // ── 5b. Prevent promo code reuse per phone number ──
     if (promoCode) {
-      const normalized = phone.replace(/\D/g, "").slice(-9)
-      if (!normalized || normalized.length < 3) {
+      const digits = phone.replace(/\D/g, "")
+      const normalized = digits.length >= 9 ? "0" + digits.slice(-9) : digits
+      if (normalized.length < 10) {
         return { success: false, error: "Numéro de téléphone invalide" }
       }
       const { count } = await supabaseAdmin
         .from("orders")
         .select("*", { count: "exact", head: true })
-        .filter("phone_number", "like", `%${normalized}`)
+        .eq("phone_number", normalized)
         .eq("promo_code", promoCode)
         .not("status", "eq", "cancelled")
 

@@ -8,6 +8,8 @@ import { FloatingDockWrapper } from "@/components/floating-dock-wrapper"
 import { CartSection } from "@/components/cart-section"
 import { PrivacyBanner } from "@/components/privacy-banner"
 import { VisitTracker } from "@/components/visit-tracker"
+import { AdminPrefixProvider } from "@/components/admin-context"
+import { ADMIN_PREFIX } from "@/lib/admin-config"
 import "./globals.css"
 
 const inter = Inter({
@@ -53,14 +55,16 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${tajawal.variable} font-sans antialiased`}
       >
-        <LanguageProvider>
-          <CartProvider>
-            <div className="pb-24 md:pb-28">{children}</div>
-            <FloatingDockWrapper />
-            <CartSection />
-            <PrivacyBanner />
-          </CartProvider>
-        </LanguageProvider>
+        <AdminPrefixProvider prefix={ADMIN_PREFIX}>
+          <LanguageProvider>
+            <CartProvider>
+              <div className="pb-24 md:pb-28">{children}</div>
+              <FloatingDockWrapper />
+              <CartSection />
+              <PrivacyBanner />
+            </CartProvider>
+          </LanguageProvider>
+        </AdminPrefixProvider>
         <Analytics />
         <VisitTracker />
       </body>

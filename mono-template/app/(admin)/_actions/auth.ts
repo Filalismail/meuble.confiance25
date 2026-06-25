@@ -1,10 +1,25 @@
 "use server"
 
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { randomUUID } from "crypto"
 import { sign } from "./_utils"
+import { supabaseAdmin } from "@/lib/supabase-admin"
+import { ADMIN_PREFIX } from "@/lib/admin-config"
 
 export async function login(_prev: unknown, formData: FormData) {
+  const forwardedFor = (await headers()).get("x-forwarded-for")
+  const clientIp = forwardedFor?.split(",")[0]?.trim() || "unknown"
+
+  const { data: rateLimitResult } = await supabaseAdmin.rpc("check_ip_rate_limit", {
+    p_ip: clientIp,
+    p_max_requests: 5,
+    p_window_seconds: 300,
+  })
+  if (rateLimitResult?.allowed === false) {
+    return { success: false, error: "Trop de tentatives. Réessayez dans 5 minutes." }
+  }
+
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 
@@ -22,6 +37,7 @@ export async function login(_prev: unknown, formData: FormData) {
 
   const sessionPayload = JSON.stringify({
     authenticated: true,
+    jti: randomUUID(),
     loggedInAt: new Date().toISOString(),
   })
 
@@ -30,17 +46,17 @@ export async function login(_prev: unknown, formData: FormData) {
   const cookieStore = await cookies()
   cookieStore.set("admin_session", signedCookie, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "lax",
-    path: "/afa5e04feb3266f1",
+    path: ADMIN_PREFIX,
     maxAge: 60 * 60 * 8,
   })
 
-  redirect("/afa5e04feb3266f1/dashboard")
+  redirect(`${ADMIN_PREFIX}/dashboard`)
 }
 
 export async function logout() {
   const cookieStore = await cookies()
   cookieStore.delete("admin_session")
-  redirect("/afa5e04feb3266f1")
+  redirect(ADMIN_PREFIX)
 }

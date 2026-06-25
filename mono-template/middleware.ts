@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-const ADMIN_PREFIX = "/afa5e04feb3266f1"
+const ADMIN_PREFIX =
+  process.env.ADMIN_SECRET_PATH
+    ? `/${process.env.ADMIN_SECRET_PATH}`
+    : "/afa5e04feb3266f1"
 const LOGIN_PATH = ADMIN_PREFIX
 
 async function verifySessionCookie(value: string): Promise<boolean> {
@@ -26,19 +29,30 @@ async function verifySessionCookie(value: string): Promise<boolean> {
     .join("")
 
   if (signature.length !== expected.length) return false
+
   let result = 0
   for (let i = 0; i < signature.length; i++) {
     result |= signature.charCodeAt(i) ^ expected.charCodeAt(i)
   }
-  return result === 0
+  if (result !== 0) return false
+
+  const raw = atob(encoded)
+  try {
+    const parsed = JSON.parse(raw)
+    if (parsed?.authenticated !== true) return false
+    const maxAge = 8 * 60 * 60 * 1000
+    const loggedInAt = new Date(parsed.loggedInAt).getTime()
+    if (isNaN(loggedInAt) || Date.now() - loggedInAt > maxAge) return false
+    return true
+  } catch {
+    return false
+  }
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (!pathname.startsWith(ADMIN_PREFIX)) return NextResponse.next()
-
-  if (process.env.NODE_ENV === "development") return NextResponse.next()
 
   if (pathname === LOGIN_PATH) return NextResponse.next()
 
@@ -51,5 +65,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/afa5e04feb3266f1/:path*",
+  matcher: "/((?!_next/static|_next/image|favicon.ico).*)",
 }
