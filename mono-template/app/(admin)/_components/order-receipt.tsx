@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { localeSafe } from "@/lib/locale-safe"
 
@@ -48,6 +50,8 @@ const statusOptions = [
 ]
 
 export function OrderReceipt({ order }: Props) {
+  const router = useRouter()
+  const [deleting, setDeleting] = useState(false)
   const items: OrderLineItem[] = Array.isArray(order.items_json)
     ? order.items_json
     : typeof order.items_json === "string"
@@ -58,6 +62,19 @@ export function OrderReceipt({ order }: Props) {
     const { updateOrderStatus } = await import("../_actions/orders")
     await updateOrderStatus(order.id, newStatus)
     window.location.reload()
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm("Confirmer la suppression de cette commande ?")) return
+    setDeleting(true)
+    const { deleteOrder } = await import("../_actions/orders")
+    const result = await deleteOrder(order.id)
+    if (result.error) {
+      alert(result.error)
+      setDeleting(false)
+    } else {
+      router.push("/afa5e04feb3266f1/orders")
+    }
   }
 
   const d = new Date(order.created_at)
@@ -73,17 +90,26 @@ export function OrderReceipt({ order }: Props) {
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">{createdAt}</p>
           </div>
-          <select
-            value={order.status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-[#E5E5E5]/70 bg-white/50 text-xs font-medium focus:outline-none focus:border-[#FF5722]/40"
-          >
-            {statusOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={order.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-3 py-1.5 rounded-xl border border-[#E5E5E5]/70 bg-white/50 text-xs font-medium focus:outline-none focus:border-[#FF5722]/40"
+            >
+              {statusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="px-3 py-1.5 rounded-xl border border-red-200 bg-white/50 text-xs font-medium text-red-500 hover:bg-red-50 disabled:opacity-50 transition-colors"
+            >
+              {deleting ? "..." : "Supprimer"}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm border-t border-[#E5E5E5]/40 pt-4 mt-4">

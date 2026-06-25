@@ -48,3 +48,16 @@ export async function updateOrderStatus(id: string, status: string) {
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function deleteOrder(id: string) {
+  const session = await verifyAdminSession()
+  if (!session) return { error: "Non autorisé" }
+
+  const { error } = await supabaseAdmin
+    .from("orders")
+    .delete()
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  return { success: true }
+}

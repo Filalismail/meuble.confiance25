@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Eye } from "lucide-react"
+import { Eye, Trash2 } from "lucide-react"
 import { AdminTable, type Column } from "../../_components/admin-table"
 import { StatusBadge } from "../../_components/status-badge"
 import type { OrderStatus } from "@/lib/types"
@@ -53,6 +53,19 @@ function matchFilter(status: string, filter: StatusFilter): boolean {
 export function OrderListClient({ orders }: Props) {
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleDelete = useCallback(async (id: string) => {
+    if (!window.confirm("Confirmer la suppression de cette commande ?")) return
+    setDeletingId(id)
+    const { deleteOrder } = await import("../../_actions/orders")
+    const result = await deleteOrder(id)
+    if (result.error) {
+      alert(result.error)
+    }
+    setDeletingId(null)
+    router.refresh()
+  }, [router])
 
   const filtered = useMemo(
     () => orders.filter((o) => matchFilter(o.status, statusFilter)),
@@ -130,16 +143,24 @@ export function OrderListClient({ orders }: Props) {
         key: "actions",
         label: "",
         render: (o) => (
-          <button
-            onClick={() => router.push(`${ADMIN_BASE}/orders/${o.id}`)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-[#FF5722] hover:bg-[#FF5722]/5 transition-colors"
-          >
-            <Eye size={15} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => router.push(`${ADMIN_BASE}/orders/${o.id}`)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-[#FF5722] hover:bg-[#FF5722]/5 transition-colors"
+            >
+              <Eye size={15} />
+            </button>
+            <button
+              onClick={() => handleDelete(o.id)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <Trash2 size={15} />
+            </button>
+          </div>
         ),
       },
     ],
-    [router],
+    [router, handleDelete],
   )
 
   return (
@@ -202,6 +223,14 @@ export function OrderListClient({ orders }: Props) {
               >
                 <Eye size={13} />
                 Détails
+              </button>
+              <button
+                onClick={() => handleDelete(o.id)}
+                disabled={deletingId === o.id}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={13} />
+                {deletingId === o.id ? "..." : "Supprimer"}
               </button>
             </div>
           </div>
