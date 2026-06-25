@@ -10,7 +10,7 @@ const LOGIN_PATH = ADMIN_PREFIX
 function buildCsp(nonce: string): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'unsafe-inline' 'nonce-${nonce}'`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' https://upcrqpiotnrybbcazwso.supabase.co data: blob:",
     "connect-src 'self' https://upcrqpiotnrybbcazwso.supabase.co https://*.supabase.co",
