@@ -102,12 +102,13 @@ BEGIN
   ),
   product_checkouts AS (
     SELECT
-      (jsonb_array_elements(e.metadata->'items_json')->>'product_id')::UUID AS product_id,
+      (item->>'product_id')::UUID AS product_id,
       COUNT(*) AS checkouts
-    FROM public.analytics_events e
+    FROM public.analytics_events e,
+      LATERAL jsonb_array_elements(e.metadata->'items_json') AS item
     WHERE e.created_at >= v_start AND e.created_at < v_end
       AND e.event_type = 'checkout_success'
-    GROUP BY product_id
+    GROUP BY (item->>'product_id')::UUID
   )
   INSERT INTO public.daily_analytics_summary
     (summary_date, metric_type, metric_key, metric_data)
