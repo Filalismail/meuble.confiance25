@@ -45,6 +45,7 @@ const SubmitOrderPayloadSchema = z.object({
 interface SubmitOrderResult {
   success: boolean
   error?: string
+  orderId?: string
 }
 
 // ── Server Action ────────────────────────────────────────────
@@ -264,29 +265,35 @@ export async function submitOrder(
     const finalTotal = subtotal - discount + deliveryFee
 
     // ── 8. Insert order ────────────────────────────────────
-    const { error: insertErr } = await supabaseAdmin.from("orders").insert({
-      customer_first_name: firstName,
-      customer_last_name: lastName,
-      phone_number: phone,
-      wilaya_id: wilayaId,
-      delivery_type: deliveryType,
-      order_note: note,
-      items_json: itemsJson,
-      subtotal,
-      discount_applied: discount,
-      delivery_fee: deliveryFee,
-      final_total: finalTotal,
-      status: "pending",
-      promo_code: promoCode || "",
-    })
+    const { data: insertedOrder, error: insertErr } = await supabaseAdmin
+      .from("orders")
+      .insert({
+        customer_first_name: firstName,
+        customer_last_name: lastName,
+        phone_number: phone,
+        wilaya_id: wilayaId,
+        delivery_type: deliveryType,
+        order_note: note,
+        items_json: itemsJson,
+        subtotal,
+        discount_applied: discount,
+        delivery_fee: deliveryFee,
+        final_total: finalTotal,
+        status: "pending",
+        promo_code: promoCode || "",
+      })
+      .select("id")
+      .single()
 
-    if (insertErr) {
+    if (insertErr || !insertedOrder) {
       console.error("Order insert error:", insertErr)
       return {
         success: false,
         error: "Erreur lors de la création de la commande",
       }
     }
+
+    const orderId = insertedOrder.id
 
     // ── 9. Extract analytics source ────────────────────────
     const { source } = extractClientHeaders(headersList, undefined)
@@ -308,7 +315,7 @@ export async function submitOrder(
       )
     })
 
-    return { success: true }
+    return { success: true, orderId }
   } catch (err) {
     console.error("submitOrder unexpected error:", err)
     return { success: false, error: "Erreur serveur" }

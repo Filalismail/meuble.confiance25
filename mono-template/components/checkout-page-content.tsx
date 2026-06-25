@@ -51,6 +51,7 @@ export function CheckoutPageContent({
   const [promoMessage, setPromoMessage] = useState("")
   const [promoLoading, setPromoLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [orderCode, setOrderCode] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState("")
   const [wilayas, setWilayas] = useState<Wilaya[]>([])
@@ -196,6 +197,7 @@ export function CheckoutPageContent({
     }
 
     clearCart()
+    setOrderCode(result.orderId ?? "")
     setShowSuccess(true)
   }
 
@@ -615,7 +617,7 @@ export function CheckoutPageContent({
         </div>
       </div>
 
-      {showSuccess && <SuccessModal onClose={() => setShowSuccess(false)} />}
+      {showSuccess && <SuccessModal orderCode={orderCode} onClose={() => setShowSuccess(false)} />}
     </main>
   )
 }
