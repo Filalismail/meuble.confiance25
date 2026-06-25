@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from "next"
 import { Inter, Tajawal } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { LanguageProvider } from "@/components/language-provider"
 import { CartProvider } from "@/components/cart-context"
 import { FloatingDockWrapper } from "@/components/floating-dock-wrapper"
@@ -62,6 +63,7 @@ export default function RootLayout({
           </CartProvider>
         </LanguageProvider>
         <Analytics />
+        <SpeedInsights />
         <VisitTracker />
       </body>
     </html>
