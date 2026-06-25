@@ -189,7 +189,7 @@ export function OrderListClient({ orders }: Props) {
         columns={columns}
         data={filtered}
         searchPlaceholder="Rechercher un client ou téléphone..."
-        searchKeys={["customer_first_name", "customer_last_name", "phone_number"]}
+        searchKeys={["id", "customer_first_name", "customer_last_name", "phone_number"]}
         emptyMessage="Aucune commande trouvée"
         mobileCardRender={(o) => (
           <div className="p-4">
