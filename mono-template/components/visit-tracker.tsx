@@ -47,6 +47,7 @@ export function VisitTracker() {
         eventType: "page_view",
         metadata: { source },
       }),
+      keepalive: true,
     }).catch(() => {})
   }, [pathname, adminPrefix])
 

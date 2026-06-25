@@ -1,5 +1,3 @@
-"use client"
-
 import type { TemporalPeak } from "@/lib/analytics-data"
 
 interface Props {

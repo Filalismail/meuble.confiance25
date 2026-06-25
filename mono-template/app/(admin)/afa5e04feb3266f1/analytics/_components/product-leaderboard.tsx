@@ -1,5 +1,3 @@
-"use client"
-
 import type { TopProductRow } from "@/lib/analytics-data"
 
 interface Props {

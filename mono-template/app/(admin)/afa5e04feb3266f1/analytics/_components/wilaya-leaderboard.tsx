@@ -1,5 +1,3 @@
-"use client"
-
 import type { TopWilayaRow } from "@/lib/analytics-data"
 import { localeSafe } from "@/lib/locale-safe"
 

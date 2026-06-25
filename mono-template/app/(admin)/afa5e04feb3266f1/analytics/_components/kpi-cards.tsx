@@ -1,5 +1,3 @@
-"use client"
-
 import { localeSafe } from "@/lib/locale-safe"
 
 interface Props {

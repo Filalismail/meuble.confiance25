@@ -38,6 +38,7 @@ export function AboutSection({ shopName = "Thika 25", shopNameAr = "ثقة 25" }
                 src="/logo.jpg"
                 alt="مملكة الثقة 25"
                 fill
+                sizes="160px"
                 className="object-contain p-3"
               />
             </div>

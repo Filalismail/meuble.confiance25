@@ -1,5 +1,3 @@
-"use client"
-
 import { AdminTable, type Column } from "../../../_components/admin-table"
 import type { WorkshopDemandRow } from "@/lib/analytics-data"
 import { localeSafe } from "@/lib/locale-safe"
