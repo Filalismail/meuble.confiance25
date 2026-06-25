@@ -1,16 +1,25 @@
 import React from "react"
 import type { Metadata } from "next"
+import dynamic from "next/dynamic"
 import { Inter, Tajawal } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LanguageProvider } from "@/components/language-provider"
 import { CartProvider } from "@/components/cart-context"
 import { FloatingDockWrapper } from "@/components/floating-dock-wrapper"
-import { CartSection } from "@/components/cart-section"
-import { PrivacyBanner } from "@/components/privacy-banner"
 import { VisitTracker } from "@/components/visit-tracker"
 import { AdminPrefixProvider } from "@/components/admin-context"
 import { ADMIN_PREFIX } from "@/lib/admin-config"
 import "./globals.css"
+
+const CartSection = dynamic(() =>
+  import("@/components/cart-section").then((m) => ({ default: m.CartSection })),
+  { loading: () => null },
+)
+
+const PrivacyBanner = dynamic(() =>
+  import("@/components/privacy-banner").then((m) => ({ default: m.PrivacyBanner })),
+  { loading: () => null },
+)
 
 const inter = Inter({
   subsets: ["latin"],

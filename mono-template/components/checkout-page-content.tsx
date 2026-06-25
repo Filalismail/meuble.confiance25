@@ -2,10 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { useLanguage } from "@/components/language-provider"
 import { useCart } from "@/components/cart-context"
-import { SuccessModal } from "@/components/success-modal"
 import { supabase } from "@/lib/supabase"
+
+const SuccessModal = dynamic(
+  () => import("@/components/success-modal").then((m) => ({ default: m.SuccessModal })),
+  { ssr: false, loading: () => null },
+)
 import { submitOrder, checkPromoCode } from "@/lib/actions"
 import type { Wilaya, PromoCode } from "@/lib/types"
 

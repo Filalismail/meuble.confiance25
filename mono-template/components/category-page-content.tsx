@@ -2,9 +2,14 @@
 
 import { useMemo, useState, useEffect } from "react"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { useLanguage } from "@/components/language-provider"
-import { ProductQuickView } from "@/components/product-quick-view"
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/categories"
+
+const ProductQuickView = dynamic(
+  () => import("@/components/product-quick-view").then((m) => ({ default: m.ProductQuickView })),
+  { ssr: false, loading: () => null },
+)
 import type { Product, Category } from "@/lib/categories"
 import { getPriceRange, getProductMinPrice, getProductMaxPrice } from "@/lib/price-calculator"
 
