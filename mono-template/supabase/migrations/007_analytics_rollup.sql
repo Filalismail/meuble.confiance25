@@ -57,7 +57,7 @@ BEGIN
     jsonb_build_object('total_visitors', COUNT(DISTINCT e.session_hash))
   FROM public.analytics_events e
   WHERE e.created_at >= v_start AND e.created_at < v_end
-    AND e.event_type IN ('category_view', 'product_view')
+    AND e.event_type IN ('page_view', 'category_view', 'product_view')
   GROUP BY COALESCE(e.metadata->>'source', 'direct')
   ON CONFLICT (summary_date, metric_type, metric_key)
   DO UPDATE SET metric_data = EXCLUDED.metric_data, updated_at = NOW();
