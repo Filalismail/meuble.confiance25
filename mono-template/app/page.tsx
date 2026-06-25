@@ -5,6 +5,9 @@ import { AboutSection } from "@/components/about-section"
 import { MapSection } from "@/components/map-section"
 import { SocialFooter } from "@/components/social-footer"
 import { getSiteSettings } from "@/lib/site-settings"
+
+export const revalidate = 3600
+
 export default async function Home() {
   const settings = await getSiteSettings()
   return (
