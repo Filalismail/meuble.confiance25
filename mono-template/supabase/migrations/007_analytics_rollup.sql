@@ -83,25 +83,6 @@ BEGIN
   ON CONFLICT (summary_date, metric_type, metric_key)
   DO UPDATE SET metric_data = EXCLUDED.metric_data, updated_at = NOW();
 
-  -- C. Workshop Production Demand
-  INSERT INTO public.daily_analytics_summary
-    (summary_date, metric_type, metric_key, metric_data)
-  SELECT
-    p_date,
-    'workshop_demand',
-    'option_' || COALESCE(opt.key, 'unknown'),
-    jsonb_build_object(
-      'units_ordered', COUNT(*),
-      'unique_products', COUNT(DISTINCT e.product_id)
-    )
-  FROM public.analytics_events e,
-       jsonb_each_text(COALESCE(e.metadata->'option_selections', '{}'::jsonb)) AS opt
-  WHERE e.created_at >= v_start AND e.created_at < v_end
-    AND e.event_type = 'add_to_cart'
-  GROUP BY opt.key
-  ON CONFLICT (summary_date, metric_type, metric_key)
-  DO UPDATE SET metric_data = EXCLUDED.metric_data, updated_at = NOW();
-
   -- D. Product Performance
   WITH product_views AS (
     SELECT e.product_id, COUNT(*) AS views

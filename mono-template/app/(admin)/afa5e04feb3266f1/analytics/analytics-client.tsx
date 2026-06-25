@@ -12,8 +12,6 @@ import { SourceProportionBar } from "./_components/source-proportion-bar"
 import { PeakChart } from "./_components/peak-chart"
 import { ProductTable } from "./_components/product-table"
 import { GeoTable } from "./_components/geo-table"
-import { WorkshopTable } from "./_components/workshop-table"
-
 interface Props {
   data: AnalyticsSummary
   range: string
@@ -88,10 +86,6 @@ export function AnalyticsClient({ data, range }: Props) {
       <SourceProportionBar sources={data.marketingSources} />
 
       {data.geoDemand.length > 0 && <GeoTable rows={data.geoDemand} />}
-
-      {data.workshopDemand.length > 0 && (
-        <WorkshopTable rows={data.workshopDemand} />
-      )}
 
       {data.temporalPeak && data.temporalPeak.peakHourOrders > 0 && (
         <PeakChart peak={data.temporalPeak} />

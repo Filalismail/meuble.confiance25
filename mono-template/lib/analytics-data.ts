@@ -41,12 +41,6 @@ export interface GeoDemandRow {
   avgOrderValue: number
 }
 
-export interface WorkshopDemandRow {
-  optionKey: string
-  unitsOrdered: number
-  uniqueProducts: number
-}
-
 export interface FunnelKpis {
   views: number
   addToCart: number
@@ -87,7 +81,6 @@ export interface AnalyticsSummary {
   funnelKpis: FunnelKpis | null
   marketingSources: MarketingSourceRow[]
   geoDemand: GeoDemandRow[]
-  workshopDemand: WorkshopDemandRow[]
   temporalPeak: TemporalPeak | null
   revenueTimeline: RevenueTimelineRow[]
   topWilayas: TopWilayaRow[]
@@ -126,7 +119,6 @@ export async function fetchAnalyticsSummary(
       funnelKpis: null,
       marketingSources: [],
       geoDemand: [],
-      workshopDemand: [],
       temporalPeak: null,
       revenueTimeline: [],
       topWilayas: [],
@@ -143,7 +135,6 @@ export async function fetchAnalyticsSummary(
   }
   const marketingSourcesMap = new Map<string, number>()
   const geoDemandMap = new Map<number, GeoDemandRow>()
-  const workshopDemandMap = new Map<string, WorkshopDemandRow>()
   let temporalPeak: TemporalPeak | null = null
 
   const productIds = new Set<string>()
@@ -187,18 +178,6 @@ export async function fetchAnalyticsSummary(
         shippingHome: safeNum(data.shipping_home) + (existing?.shippingHome || 0),
         shippingDesk: safeNum(data.shipping_desk) + (existing?.shippingDesk || 0),
         avgOrderValue: 0,
-      })
-    }
-
-    if (row.metric_type === "workshop_demand") {
-      const existing = workshopDemandMap.get(row.metric_key)
-      workshopDemandMap.set(row.metric_key, {
-        optionKey: row.metric_key.replace("option_", ""),
-        unitsOrdered: safeNum(data.units_ordered) + (existing?.unitsOrdered || 0),
-        uniqueProducts: Math.max(
-          safeNum(data.unique_products),
-          existing?.uniqueProducts || 0,
-        ),
       })
     }
 
@@ -372,9 +351,6 @@ export async function fetchAnalyticsSummary(
       .sort((a, b) => b.totalVisitors - a.totalVisitors),
     geoDemand: Array.from(geoDemandMap.values()).sort(
       (a, b) => b.totalRevenue - a.totalRevenue,
-    ),
-    workshopDemand: Array.from(workshopDemandMap.values()).sort(
-      (a, b) => b.unitsOrdered - a.unitsOrdered,
     ),
     temporalPeak,
     revenueTimeline,
