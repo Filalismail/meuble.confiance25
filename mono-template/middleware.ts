@@ -7,10 +7,10 @@ const ADMIN_PREFIX =
     : "/afa5e04feb3266f1"
 const LOGIN_PATH = ADMIN_PREFIX
 
-function buildCsp(nonce: string): string {
+function buildCsp(): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' 'nonce-${nonce}'`,
+    "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' https://upcrqpiotnrybbcazwso.supabase.co data: blob:",
     "connect-src 'self' https://upcrqpiotnrybbcazwso.supabase.co https://*.supabase.co",
@@ -66,16 +66,9 @@ async function verifySessionCookie(value: string): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  const nonce = crypto.randomUUID()
+  const response = NextResponse.next()
 
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set("x-nonce", nonce)
-
-  const response = NextResponse.next({
-    request: { headers: requestHeaders },
-  })
-
-  response.headers.set("Content-Security-Policy", buildCsp(nonce))
+  response.headers.set("Content-Security-Policy", buildCsp())
 
   const { pathname } = request.nextUrl
 
