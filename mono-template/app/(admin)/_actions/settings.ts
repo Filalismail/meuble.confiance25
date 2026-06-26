@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 import { clearSettingsCache } from "@/lib/site-settings"
 
 const UpdateSchema = z.object({
@@ -26,7 +26,7 @@ export async function listSettings() {
     .select("*")
     .order("key", { ascending: true })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -43,7 +43,7 @@ export async function updateSetting(key: string, formData: FormData) {
     .update({ value_fr: parsed.data.valueFr, value_ar: parsed.data.valueAr })
     .eq("key", key)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   clearSettingsCache()
   return { success: true }
 }
@@ -65,10 +65,7 @@ export async function createSetting(formData: FormData) {
       description: parsed.data.description,
     })
 
-  if (error) {
-    if (error.code === "23505") return { error: "Cette clé existe déjà" }
-    return { error: error.message }
-  }
+  if (error) return { error: mapSupabaseError(error) }
   clearSettingsCache()
   return { success: true }
 }
@@ -82,7 +79,7 @@ export async function deleteSetting(key: string) {
     .delete()
     .eq("key", key)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   clearSettingsCache()
   return { success: true }
 }

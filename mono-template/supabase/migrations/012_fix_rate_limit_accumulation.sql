@@ -74,4 +74,3 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION check_ip_rate_limit(TEXT, INT, INT) TO anon;

@@ -3,7 +3,11 @@ import { fetchCategoryBySlug, fetchProductsByCategorySlug, fetchCategories, fetc
 
 export type { Product, Category, OptionsGroup, OptionsGroupEntry }
 
-const S = 'https://upcrqpiotnrybbcazwso.supabase.co/storage/v1/object/public'
+const STORAGE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public`
+  : "https://upcrqpiotnrybbcazwso.supabase.co/storage/v1/object/public"
+
+const S = STORAGE_URL
 
 const fallbackCategories: Category[] = [
   { id: "1", slug: "chambres-a-coucher-principales", nameAr: "غرف نوم أساسية", nameFr: "Chambres à Coucher Principales", image: `${S}/main-bedroom/main-bedroom.jpg`, gradient: "from-[#F5F0EB] to-[#E8DFD3]", isActive: true, sortOrder: 1 },

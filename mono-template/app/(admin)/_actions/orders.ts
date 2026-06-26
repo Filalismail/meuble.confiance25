@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const statusEnum = z.enum(["pending", "confirmed", "shipped", "delivered", "cancelled"])
 
@@ -15,7 +15,7 @@ export async function listOrders() {
     .select("*, wilayas(name_ar, name_fr)")
     .order("created_at", { ascending: false })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -29,7 +29,7 @@ export async function getOrder(id: string) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -45,7 +45,7 @@ export async function updateOrderStatus(id: string, status: string) {
     .update({ status: parsed.data })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -58,6 +58,6 @@ export async function deleteOrder(id: string) {
     .delete()
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }

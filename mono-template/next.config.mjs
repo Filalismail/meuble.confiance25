@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_BASE_URL || "https://thika25.com"
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
@@ -12,7 +14,7 @@ const nextConfig = {
       {
         source: "/api/:path*",
         headers: [
-          { key: "Access-Control-Allow-Origin", value: "https://thika25.com" },
+          { key: "Access-Control-Allow-Origin", value: ALLOWED_ORIGIN },
           { key: "Access-Control-Allow-Methods", value: "GET, POST, OPTIONS" },
           { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" },
         ],
@@ -26,6 +28,7 @@ const nextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
         ],
       },
     ]

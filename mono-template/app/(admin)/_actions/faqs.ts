@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const FaqSchema = z.object({
   questionAr: z.string().min(1, "Requis"),
@@ -22,7 +22,7 @@ export async function listFaqs() {
     .select("*")
     .order("sort_order", { ascending: true })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -36,7 +36,7 @@ export async function getFaq(id: string) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -61,7 +61,7 @@ export async function createFaq(formData: FormData) {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -85,7 +85,7 @@ export async function updateFaq(id: string, formData: FormData) {
     })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -98,6 +98,6 @@ export async function deleteFaq(id: string) {
     .delete()
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }

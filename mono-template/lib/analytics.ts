@@ -27,7 +27,8 @@ export interface AnalyticsMetadata {
   [key: string]: unknown
 }
 
-const SESSION_SALT = process.env.ANALYTICS_SESSION_SALT || "thika25-analytics-salt"
+const SESSION_SALT = process.env.ANALYTICS_SESSION_SALT
+if (!SESSION_SALT) throw new Error("Missing ANALYTICS_SESSION_SALT environment variable")
 
 function computeSessionHash(ip: string, userAgent: string): string {
   const raw = `${SESSION_SALT}|${ip}|${userAgent}`

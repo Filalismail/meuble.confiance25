@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const CategorySchema = z.object({
   nameAr: z.string().min(1, "Le nom (AR) est requis"),
@@ -26,7 +26,7 @@ export async function listCategories() {
     .select("*")
     .order("sort_order")
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -40,7 +40,7 @@ export async function getCategory(id: string) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -65,7 +65,7 @@ export async function createCategory(raw: unknown) {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -89,7 +89,7 @@ export async function updateCategory(id: string, raw: unknown) {
     })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -98,7 +98,7 @@ export async function deleteCategory(id: string) {
   if (!session) return { error: "Non autorisé" }
 
   const { error } = await supabaseAdmin.from("categories").delete().eq("id", id)
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -118,7 +118,7 @@ export async function batchUpdateProductOrder(items: { id: string; sortOrder: nu
       .from("products")
       .update({ sort_order: item.sortOrder })
       .eq("id", item.id)
-    if (error) return { error: error.message }
+    if (error) return { error: mapSupabaseError(error) }
   }
 
   return { success: true }

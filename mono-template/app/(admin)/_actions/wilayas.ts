@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const WilayaSchema = z.object({
   id: z.coerce.number().int().min(1).max(58).optional(),
@@ -22,7 +22,7 @@ export async function listWilayas() {
     .select("*")
     .order("id", { ascending: true })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -36,7 +36,7 @@ export async function getWilaya(id: number) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -62,7 +62,7 @@ export async function createWilaya(formData: FormData) {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -85,7 +85,7 @@ export async function updateWilaya(id: number, formData: FormData) {
     })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -98,6 +98,6 @@ export async function deleteWilaya(id: number) {
     .delete()
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }

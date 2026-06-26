@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const PromoSchema = z.object({
   code: z.string().min(1, "Requis").max(50).toUpperCase(),
@@ -20,7 +20,7 @@ export async function listPromos() {
     .select("*")
     .order("created_at", { ascending: false })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -34,7 +34,7 @@ export async function getPromo(id: string) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -57,7 +57,7 @@ export async function createPromo(formData: FormData) {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -79,7 +79,7 @@ export async function updatePromo(id: string, formData: FormData) {
     })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -92,6 +92,6 @@ export async function deletePromo(id: string) {
     .delete()
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }

@@ -75,3 +75,17 @@ export async function verifyAdminSession(): Promise<AdminSession | null> {
 export function unauthorizedResponse() {
   return { success: false, error: "Non autorisé" }
 }
+
+const SUPABASE_ERROR_MAP: Record<string, string> = {
+  "23505": "Ce champ existe déjà",
+  "23503": "Impossible de supprimer : cet élément est lié à d'autres données",
+  "42P01": "Erreur de configuration",
+  "42501": "Permission refusée",
+}
+
+export function mapSupabaseError(error: { code?: string; message?: string }): string {
+  if (error.code && SUPABASE_ERROR_MAP[error.code]) {
+    return SUPABASE_ERROR_MAP[error.code]
+  }
+  return "Erreur serveur"
+}

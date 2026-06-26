@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { supabaseAdmin } from "@/lib/supabase-admin"
-import { verifyAdminSession } from "./_utils"
+import { verifyAdminSession, mapSupabaseError } from "./_utils"
 
 const ProductSchema = z.object({
   nameAr: z.string().min(1, "Le nom (AR) est requis"),
@@ -26,7 +26,7 @@ export async function listProducts() {
     .select("*, categories(slug, name_ar, name_fr)")
     .order("created_at", { ascending: false })
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -40,7 +40,7 @@ export async function getProduct(id: string) {
     .eq("id", id)
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -68,7 +68,7 @@ export async function createProduct(raw: unknown) {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { data }
 }
 
@@ -95,7 +95,7 @@ export async function updateProduct(id: string, raw: unknown) {
     })
     .eq("id", id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }
 
@@ -104,6 +104,6 @@ export async function deleteProduct(id: string) {
   if (!session) return { error: "Non autorisé" }
 
   const { error } = await supabaseAdmin.from("products").delete().eq("id", id)
-  if (error) return { error: error.message }
+  if (error) return { error: mapSupabaseError(error) }
   return { success: true }
 }

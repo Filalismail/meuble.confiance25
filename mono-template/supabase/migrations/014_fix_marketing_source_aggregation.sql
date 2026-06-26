@@ -185,4 +185,3 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION aggregate_daily_analytics(DATE) TO anon;
