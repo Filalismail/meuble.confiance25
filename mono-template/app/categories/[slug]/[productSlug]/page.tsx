@@ -15,21 +15,21 @@ export async function generateStaticParams() {
   return all
     .filter((p) => p.categorySlug && p.slug)
     .map((p) => ({
-      categorySlug: p.categorySlug,
-      slug: p.slug,
+      slug: p.categorySlug,
+      productSlug: p.slug,
     }))
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ categorySlug: string; slug: string }>
+  params: Promise<{ slug: string; productSlug: string }>
 }): Promise<Metadata> {
-  const { categorySlug, slug } = await params
-  const validSlug = SlugSchema.parse(slug)
-  const { product, redirectTo } = await resolveProduct(validSlug)
+  const { slug: categorySlug, productSlug } = await params
+  const validSlug = SlugSchema.parse(productSlug)
+  const { product } = await resolveProduct(validSlug)
 
-  if (!product || (redirectTo)) return {}
+  if (!product) return {}
 
   const settings = await getSiteSettings()
   const title = `${product.nameFr} | ${settings.shopName}`
@@ -39,7 +39,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: `/categories/${categorySlug}/${slug}`,
+      canonical: `/categories/${categorySlug}/${productSlug}`,
     },
     openGraph: {
       title,
@@ -52,10 +52,10 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ categorySlug: string; slug: string }>
+  params: Promise<{ slug: string; productSlug: string }>
 }) {
-  const { categorySlug, slug } = await params
-  const validSlug = SlugSchema.parse(slug)
+  const { slug: categorySlug, productSlug } = await params
+  const validSlug = SlugSchema.parse(productSlug)
   const { product, redirectTo } = await resolveProduct(validSlug)
 
   if (!product) notFound()

@@ -56,10 +56,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({
   children,
-  modal,
 }: Readonly<{
   children: React.ReactNode
-  modal?: React.ReactNode
 }>) {
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning>
@@ -73,7 +71,6 @@ export default function RootLayout({
               <FloatingDockWrapper />
               <CartSection />
               <PrivacyBanner />
-              {modal}
             </CartProvider>
           </LanguageProvider>
         </AdminPrefixProvider>
