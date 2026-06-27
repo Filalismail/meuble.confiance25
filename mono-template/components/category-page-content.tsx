@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useLanguage } from "@/components/language-provider"
 import { getCategoryBySlug, getProductsByCategory } from "@/lib/categories"
@@ -315,10 +314,9 @@ export function CategoryPageContent({ slug }: { slug: string }) {
                 key={product.id}
                 className="group rounded-2xl overflow-hidden bg-white border border-[#E5E5E5]/60 hover:border-[#FF5722]/20 hover:shadow-lg transition-all duration-400"
               >
-                <Link
-                  href={`/categories/${product.categorySlug}/${product.slug}`}
-                  scroll={false}
-                  className="relative w-full aspect-[4/3] overflow-hidden cursor-pointer bg-[#F5F5F5] block"
+                <button
+                  onClick={() => setQuickViewProduct(product)}
+                  className="relative w-full aspect-[4/3] overflow-hidden cursor-pointer bg-[#F5F5F5]"
                 >
                   <Image
                     src={product.primaryImage || product.images[0]}
@@ -335,16 +333,14 @@ export function CategoryPageContent({ slug }: { slug: string }) {
                       </svg>
                     </span>
                   </div>
-                </Link>
+                </button>
 
                 <div className="p-4 md:p-5">
-                  <Link
-                    href={`/categories/${product.categorySlug}/${product.slug}`}
-                    scroll={false}
+                  <h3
                     className={`text-sm md:text-base font-medium text-[#0A0A0A] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
                   >
                     {locale === "fr" ? product.nameFr : product.nameAr}
-                  </Link>
+                  </h3>
                   <p className="text-[#FF5722] text-sm mt-1 font-medium">
                     {locale === "fr" ? "À partir de" : "من"}{" "}
                     {fmt(product.basePrice, locale)} {product.currency}

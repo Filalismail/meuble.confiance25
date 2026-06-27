@@ -16,7 +16,6 @@ export interface Product {
   categoryId: string
   nameAr: string
   nameFr: string
-  slug: string
   descriptionAr: string
   descriptionFr: string
   primaryImage: string

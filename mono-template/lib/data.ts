@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase"
 import type { Product, Category, Wilaya, PromoCode, Faq, OptionsGroupEntry } from "@/lib/types"
-import { slugify } from "@/lib/slug"
 
 function mapProduct(row: any, categorySlug: string): Product {
   return {
@@ -8,7 +7,6 @@ function mapProduct(row: any, categorySlug: string): Product {
     categoryId: row.category_id,
     nameAr: row.name_ar,
     nameFr: row.name_fr,
-    slug: slugify(row.name_fr),
     descriptionAr: row.description_ar,
     descriptionFr: row.description_fr,
     primaryImage: row.primary_image,
@@ -92,11 +90,6 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 
   if (error || !data) return null
   return mapProduct(data, data.categories?.[0]?.slug ?? "")
-}
-
-export async function fetchProductBySlug(slug: string): Promise<Product | null> {
-  const all = await fetchAllProducts()
-  return all.find((p) => p.slug === slug) ?? null
 }
 
 export async function fetchAllProducts(): Promise<Product[]> {
