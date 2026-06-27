@@ -27,11 +27,14 @@ export interface AnalyticsMetadata {
   [key: string]: unknown
 }
 
-const SESSION_SALT = process.env.ANALYTICS_SESSION_SALT
-if (!SESSION_SALT) throw new Error("Missing ANALYTICS_SESSION_SALT environment variable")
+function getSessionSalt(): string {
+  const salt = process.env.ANALYTICS_SESSION_SALT
+  if (!salt) throw new Error("Missing ANALYTICS_SESSION_SALT environment variable")
+  return salt
+}
 
 function computeSessionHash(ip: string, userAgent: string): string {
-  const raw = `${SESSION_SALT}|${ip}|${userAgent}`
+  const raw = `${getSessionSalt()}|${ip}|${userAgent}`
   return createHash("sha256").update(raw, "utf-8").digest("hex")
 }
 

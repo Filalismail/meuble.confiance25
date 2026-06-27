@@ -1,5 +1,5 @@
 import type { Product, Category, OptionsGroup, OptionsGroupEntry } from "@/lib/types"
-import { fetchCategoryBySlug, fetchProductsByCategorySlug, fetchCategories, fetchAllProducts } from "@/lib/data"
+import { fetchCategoryBySlug, fetchProductsByCategorySlug, fetchCategories, fetchAllProducts, fetchProductBySlug } from "@/lib/data"
 
 export type { Product, Category, OptionsGroup, OptionsGroupEntry }
 
@@ -47,4 +47,11 @@ export async function getAllProducts(): Promise<Product[]> {
     return await fetchAllProducts()
   } catch {}
   return []
+}
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  try {
+    return await fetchProductBySlug(slug)
+  } catch {}
+  return null
 }

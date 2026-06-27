@@ -7,6 +7,7 @@ function mapProduct(row: any, categorySlug: string): Product {
     categoryId: row.category_id,
     nameAr: row.name_ar,
     nameFr: row.name_fr,
+    slug: row.slug ?? "",
     descriptionAr: row.description_ar,
     descriptionFr: row.description_fr,
     primaryImage: row.primary_image,
@@ -73,7 +74,7 @@ export async function fetchProductsByCategorySlug(slug: string): Promise<Product
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, sort_order")
+    .select("id, category_id, slug, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, sort_order")
     .eq("category_id", category.id)
     .order("sort_order", { ascending: true })
 
@@ -84,8 +85,19 @@ export async function fetchProductsByCategorySlug(slug: string): Promise<Product
 export async function fetchProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
+    .select("id, category_id, slug, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .eq("id", id)
+    .single()
+
+  if (error || !data) return null
+  return mapProduct(data, data.categories?.[0]?.slug ?? "")
+}
+
+export async function fetchProductBySlug(slug: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, category_id, slug, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, sort_order, categories!inner(slug)")
+    .eq("slug", slug)
     .single()
 
   if (error || !data) return null
@@ -95,7 +107,7 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 export async function fetchAllProducts(): Promise<Product[]> {
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
+    .select("id, category_id, slug, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .order("created_at", { ascending: true })
 
   if (error || !products) return []
@@ -105,7 +117,7 @@ export async function fetchAllProducts(): Promise<Product[]> {
 export async function fetchFeaturedProducts(): Promise<Product[]> {
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, category_id, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
+    .select("id, category_id, slug, name_ar, name_fr, description_ar, description_fr, primary_image, images, is_featured, base_price, options_config, categories(slug)")
     .eq("is_featured", true)
 
   if (error || !products) return []

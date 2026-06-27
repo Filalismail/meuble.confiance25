@@ -45,6 +45,7 @@ export default async function EditProductPage({ params }: Props) {
     isFeatured: product.is_featured,
     basePrice: Number(product.base_price),
     currency: "DA",
+    slug: product.slug ?? "",
     categorySlug: product.categories?.slug || "",
     sortOrder: product.sort_order ?? 0,
     optionsConfig: product.options_config || {},
