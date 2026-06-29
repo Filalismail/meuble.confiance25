@@ -5,7 +5,6 @@ import { headers } from "next/headers"
 import { after } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { trackServerEvent, extractClientHeaders } from "@/lib/analytics"
-import { getSiteSettings } from "@/lib/site-settings"
 
 // ── Zod Schemas ──────────────────────────────────────────────
 
@@ -191,112 +190,35 @@ export async function submitOrder(
       })
     }
 
-    // ── 5b. Prevent promo code reuse per phone number ──
-    if (promoCode) {
-      const digits = phone.replace(/\D/g, "")
-      const normalized = digits.length >= 9 ? "0" + digits.slice(-9) : digits
-      if (normalized.length < 10) {
-        return { success: false, error: "Numéro de téléphone invalide" }
-      }
-      const { count } = await supabaseAdmin
-        .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("phone_number", normalized)
-        .eq("promo_code", promoCode)
-        .not("status", "eq", "cancelled")
-
-      if (count && count > 0) {
-        return {
-          success: false,
-          error: "Ce numéro de téléphone a déjà utilisé ce code promo.",
-        }
-      }
-    }
-
-    // ── 6. Apply promo code (FOR UPDATE row lock) ──────────
-    let discount = 0
-    if (promoCode) {
-      const { data: promoResult, error: promoErr } = await supabaseAdmin.rpc(
-        "apply_promo_code",
-        {
-          p_code: promoCode,
-          p_subtotal: subtotal,
+    // ── 6. Create order atomically (bypasses PostgREST schema cache) ──
+    const { data: result, error: rpcErr } = await supabaseAdmin.rpc(
+      "create_order",
+      {
+        p_data: {
+          customer_first_name: firstName,
+          customer_last_name: lastName,
+          email: email || "",
+          phone,
+          wilaya_id: wilayaId,
+          delivery_type: deliveryType,
+          order_note: note,
+          items_json: itemsJson,
+          subtotal,
+          promo_code: promoCode || "",
         },
-      )
+      },
+    )
 
-      if (promoErr) {
-        console.error("Promo RPC error:", promoErr)
-        return {
-          success: false,
-          error: "Erreur lors de l'application du code promo",
-        }
-      }
-
-      if (!promoResult?.valid) {
-        return {
-          success: false,
-          error: promoResult?.error ?? "Code promo invalide",
-        }
-      }
-
-      discount = promoResult.discount_amount ?? 0
-    }
-
-    // ── 7. Verify wilaya and get delivery fee ──────────────
-    const { data: wilaya } = await supabaseAdmin
-      .from("wilayas")
-      .select("shipping_home_fee, shipping_desk_fee")
-      .eq("id", wilayaId)
-      .eq("is_active", true)
-      .single()
-
-    if (!wilaya) {
-      return { success: false, error: "Wilaya invalide" }
-    }
-
-    let deliveryFee =
-      deliveryType === "home"
-        ? Number(wilaya.shipping_home_fee)
-        : Number(wilaya.shipping_desk_fee)
-
-    const settings = await getSiteSettings()
-    if (subtotal >= settings.deliveryThreshold) {
-      deliveryFee = 0
-    }
-
-    const finalTotal = subtotal - discount + deliveryFee
-
-    // ── 8. Insert order ────────────────────────────────────
-    const { data: insertedOrder, error: insertErr } = await supabaseAdmin
-      .from("orders")
-      .insert({
-        customer_first_name: firstName,
-        customer_last_name: lastName,
-        email: email || "",
-        phone_number: phone,
-        wilaya_id: wilayaId,
-        delivery_type: deliveryType,
-        order_note: note,
-        items_json: itemsJson,
-        subtotal,
-        discount_applied: discount,
-        delivery_fee: deliveryFee,
-        final_total: finalTotal,
-        status: "pending",
-        promo_code: promoCode || "",
-      })
-      .select("id")
-      .single()
-
-    if (insertErr || !insertedOrder) {
-      console.error("Order insert error:", insertErr)
+    if (rpcErr || !result?.success) {
+      console.error("create_order RPC error:", rpcErr || result?.error)
       return {
         success: false,
-        error: "Erreur lors de la création de la commande",
+        error: result?.error ?? "Erreur lors de la création de la commande",
       }
     }
 
-    const orderId = insertedOrder.id
+    const orderId = result.order_id
+    const { discount_applied: discount, delivery_fee: deliveryFee, final_total: finalTotal } = result
 
     // ── 9. Extract analytics source ────────────────────────
     const { source } = extractClientHeaders(headersList, undefined)
