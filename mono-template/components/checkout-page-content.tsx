@@ -46,6 +46,7 @@ export function CheckoutPageContent({
   const [wilayaId, setWilayaId] = useState<number | "">("")
   const [deliveryType, setDeliveryType] = useState<"home" | "desk">("home")
   const [note, setNote] = useState("")
+  const [email, setEmail] = useState("")
   const [promoCode, setPromoCode] = useState("")
   const [promoData, setPromoData] = useState<PromoCode | null>(null)
   const [promoMessage, setPromoMessage] = useState("")
@@ -173,6 +174,7 @@ export function CheckoutPageContent({
       })),
       firstName: firstName.trim(),
       lastName: lastName.trim(),
+      email: email.trim(),
       phone: phone.replace(/\D/g, ""),
       wilayaId,
       deliveryType,
@@ -429,6 +431,22 @@ export function CheckoutPageContent({
                       {phoneError}
                     </p>
                   )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label
+                    className={`block text-xs text-neutral-500 mb-1.5 ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
+                  >
+                    {locale === "fr" ? "Email (optionnel)" : "البريد الإلكتروني (اختياري)"}
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full px-4 py-3 rounded-xl border border-[#E5E5E5]/70 bg-white/50 text-sm text-neutral-800 focus:outline-none focus:border-[#FF5722]/40 focus:ring-1 focus:ring-[#FF5722]/20 transition-all placeholder:text-neutral-300 ${isRTL ? "font-[family-name:var(--font-tajawal)] text-right" : ""}`}
+                    placeholder={locale === "fr" ? "email@exemple.com" : "email@example.com"}
+                  />
                 </div>
 
                 {/* Wilaya */}

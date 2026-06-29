@@ -70,6 +70,7 @@ export interface Order {
   customerFirstName: string
   customerLastName: string
   phoneNumber: string
+  email: string
   wilayaId: number
   deliveryType: "home" | "desk"
   orderNote: string

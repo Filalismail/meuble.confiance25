@@ -25,6 +25,7 @@ interface OrderDetail {
   customer_first_name: string
   customer_last_name: string
   phone_number: string
+  email: string
   wilayas: WilayaInfo
   delivery_type: string
   order_note: string
@@ -123,6 +124,12 @@ export function OrderReceipt({ order }: Props) {
             <p className="text-[10px] text-neutral-400 uppercase tracking-wider">Téléphone</p>
             <p className="text-sm font-medium text-[#0A0A0A] mt-0.5">
               {order.phone_number}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] text-neutral-400 uppercase tracking-wider">Email</p>
+            <p className="text-sm font-medium text-[#0A0A0A] mt-0.5">
+              {order.email || "—"}
             </p>
           </div>
           <div>

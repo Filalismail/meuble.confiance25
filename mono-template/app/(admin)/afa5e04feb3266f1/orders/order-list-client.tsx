@@ -18,6 +18,7 @@ export interface OrderRow {
   customer_first_name: string
   customer_last_name: string
   phone_number: string
+  email: string
   delivery_type: string
   status: string
   final_total: number
@@ -94,6 +95,15 @@ export function OrderListClient({ orders }: Props) {
         key: "phone_number",
         label: "Téléphone",
         render: (o) => <span className="text-sm">{o.phone_number}</span>,
+      },
+      {
+        key: "email",
+        label: "Email",
+        render: (o) => (
+          <span className="text-sm text-neutral-500 max-w-[180px] truncate block" title={o.email}>
+            {o.email || "—"}
+          </span>
+        ),
       },
       {
         key: "wilayas",
@@ -189,7 +199,7 @@ export function OrderListClient({ orders }: Props) {
         columns={columns}
         data={filtered}
         searchPlaceholder="Rechercher un client ou téléphone..."
-        searchKeys={["id", "customer_first_name", "customer_last_name", "phone_number"]}
+        searchKeys={["id", "customer_first_name", "customer_last_name", "phone_number", "email"]}
         emptyMessage="Aucune commande trouvée"
         mobileCardRender={(o) => (
           <div className="p-4">

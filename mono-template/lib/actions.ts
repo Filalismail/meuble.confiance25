@@ -27,6 +27,7 @@ const SubmitOrderPayloadSchema = z.object({
     .min(1, "Nom requis")
     .max(100)
     .regex(/^[a-zA-Z\u0600-\u06FF\s-]+$/, "Caractères invalides"),
+  email: z.string().email().optional().or(z.literal('')).default(''),
   phone: z
     .string()
     .regex(/^0[567][0-9]{8}$/, "Numéro de téléphone invalide"),
@@ -115,6 +116,7 @@ export async function submitOrder(
       items,
       firstName,
       lastName,
+      email,
       phone,
       wilayaId,
       deliveryType,
@@ -270,6 +272,7 @@ export async function submitOrder(
       .insert({
         customer_first_name: firstName,
         customer_last_name: lastName,
+        email: email || "",
         phone_number: phone,
         wilaya_id: wilayaId,
         delivery_type: deliveryType,
