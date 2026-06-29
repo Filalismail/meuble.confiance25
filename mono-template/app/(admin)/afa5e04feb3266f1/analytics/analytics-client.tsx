@@ -83,7 +83,14 @@ export function AnalyticsClient({ data, range }: Props) {
         <ProductTable rows={data.productPerformance} />
       )}
 
-      <SourceProportionBar sources={data.marketingSources} />
+      <SourceProportionBar
+        sources={data.marketingSources.filter((s) => s.source !== "direct")}
+        title="Provenance des visiteurs (les personnes importantes)"
+      />
+      <SourceProportionBar
+        sources={data.marketingSources}
+        title="Provenance des visiteurs (tout)"
+      />
 
       {data.geoDemand.length > 0 && <GeoTable rows={data.geoDemand} />}
 

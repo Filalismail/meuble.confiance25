@@ -3,6 +3,7 @@ import { localeSafe } from "@/lib/locale-safe"
 
 interface Props {
   sources: MarketingSourceRow[]
+  title: string
 }
 
 const sourceLabels: Record<string, string> = {
@@ -29,13 +30,13 @@ function SourceDot({ source }: { source: string }) {
   return <span className={`block w-2 h-2 rounded-full shrink-0 ${color}`} />
 }
 
-export function SourceProportionBar({ sources }: Props) {
+export function SourceProportionBar({ sources, title }: Props) {
   const total = sources.reduce((s, r) => s + r.totalVisitors, 0)
 
   return (
     <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40 p-6 shadow-sm">
       <h2 className="text-sm font-medium text-[#0A0A0A] mb-6">
-        Provenance des visiteurs
+        {title}
       </h2>
 
       {sources.length === 0 || total === 0 ? (
