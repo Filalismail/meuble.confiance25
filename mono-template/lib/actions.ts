@@ -27,7 +27,7 @@ const SubmitOrderPayloadSchema = z.object({
     .min(1, "Nom requis")
     .max(100)
     .regex(/^[a-zA-Z\u0600-\u06FF\s-]+$/, "Caractères invalides"),
-  email: z.string().email().optional().or(z.literal('')).default(''),
+  email: z.string().email("Email invalide"),
   phone: z
     .string()
     .regex(/^0[567][0-9]{8}$/, "Numéro de téléphone invalide"),

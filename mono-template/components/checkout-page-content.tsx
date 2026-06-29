@@ -47,6 +47,7 @@ export function CheckoutPageContent({
   const [deliveryType, setDeliveryType] = useState<"home" | "desk">("home")
   const [note, setNote] = useState("")
   const [email, setEmail] = useState("")
+  const [emailError, setEmailError] = useState("")
   const [promoCode, setPromoCode] = useState("")
   const [promoData, setPromoData] = useState<PromoCode | null>(null)
   const [promoMessage, setPromoMessage] = useState("")
@@ -207,6 +208,7 @@ export function CheckoutPageContent({
     firstName.trim() &&
     lastName.trim() &&
     phone.replace(/\D/g, "").length === 10 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) &&
     wilayaId
 
   return (
@@ -438,15 +440,33 @@ export function CheckoutPageContent({
                   <label
                     className={`block text-xs text-neutral-500 mb-1.5 ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
                   >
-                    {locale === "fr" ? "Email (optionnel)" : "البريد الإلكتروني (اختياري)"}
+                    {locale === "fr" ? "Email" : "البريد الإلكتروني"}
                   </label>
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border border-[#E5E5E5]/70 bg-white/50 text-sm text-neutral-800 focus:outline-none focus:border-[#FF5722]/40 focus:ring-1 focus:ring-[#FF5722]/20 transition-all placeholder:text-neutral-300 ${isRTL ? "font-[family-name:var(--font-tajawal)] text-right" : ""}`}
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                      if (emailError) setEmailError("")
+                    }}
+                    onBlur={() => {
+                      const v = email.trim()
+                      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                        setEmailError(locale === "fr" ? "Email invalide" : "البريد الإلكتروني غير صالح")
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all ${
+                      emailError
+                        ? "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-1 focus:ring-red-200"
+                        : "border-[#E5E5E5]/70 bg-white/50 focus:border-[#FF5722]/40 focus:ring-1 focus:ring-[#FF5722]/20"
+                    } text-neutral-800 focus:outline-none placeholder:text-neutral-300 ${isRTL ? "font-[family-name:var(--font-tajawal)] text-right" : ""}`}
                     placeholder={locale === "fr" ? "email@exemple.com" : "email@example.com"}
                   />
+                  {emailError && (
+                    <p className={`text-xs text-red-500 mt-1.5 ${isRTL ? "font-[family-name:var(--font-tajawal)] text-right" : ""}`}>
+                      {emailError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Wilaya */}
