@@ -5,6 +5,7 @@ import { headers } from "next/headers"
 import { after } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { trackServerEvent, extractClientHeaders } from "@/lib/analytics"
+import { sendOrderConfirmation } from "@/lib/email"
 
 // ── Zod Schemas ──────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ interface SubmitOrderResult {
   success: boolean
   error?: string
   orderId?: string
+  orderCode?: string
 }
 
 // ── Server Action ────────────────────────────────────────────
@@ -220,27 +222,50 @@ export async function submitOrder(
     const orderId = result.order_id
     const { discount_applied: discount, delivery_fee: deliveryFee, final_total: finalTotal } = result
 
-    // ── 9. Extract analytics source ────────────────────────
+    // ── 9. Generate product code (single source of truth) ──
+    const orderCode = "THK-" + orderId.replace(/-/g, "").slice(0, 8).toUpperCase()
+
+    // ── 10. Persist product code ──────────────────────────
+    await supabaseAdmin
+      .from("orders")
+      .update({ product_code: orderCode })
+      .eq("id", orderId)
+
+    // ── 11. Extract analytics source ──────────────────────
     const { source } = extractClientHeaders(headersList, undefined)
 
-    // ── 10. Fire-and-forget analytics ─────────────────────
+    // ── 12. Fire-and-forget analytics + email ────────────
+    const customerName = `${firstName} ${lastName}`
+    const productName = itemsJson[0]?.name_fr || "Produit"
+    const purchaseDate = new Date().toLocaleDateString("fr-FR")
+
     after(async () => {
-      await trackServerEvent(
-        "checkout_success",
-        {
-          wilaya_id: wilayaId,
-          shipping_type: deliveryType,
-          cart_value: finalTotal,
-          discount_applied: discount,
-          items_json: itemsJson.slice(0, 50),
-          source,
-        },
-        clientIp,
-        headersList.get("user-agent") ?? "unknown",
-      )
+      await Promise.allSettled([
+        trackServerEvent(
+          "checkout_success",
+          {
+            wilaya_id: wilayaId,
+            shipping_type: deliveryType,
+            cart_value: finalTotal,
+            discount_applied: discount,
+            items_json: itemsJson.slice(0, 50),
+            source,
+          },
+          clientIp,
+          headersList.get("user-agent") ?? "unknown",
+        ),
+        sendOrderConfirmation({
+          email,
+          customerName,
+          orderCode,
+          orderId,
+          productName,
+          purchaseDate,
+        }),
+      ])
     })
 
-    return { success: true, orderId }
+    return { success: true, orderId, orderCode }
   } catch (err) {
     console.error("submitOrder unexpected error:", err)
     return { success: false, error: "Erreur serveur" }

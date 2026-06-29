@@ -24,19 +24,14 @@ export function SuccessModal({ orderCode, onClose }: Props) {
     }
   }, [onClose])
 
-  const displayCode = orderCode
-    ? "THK-" + orderCode.replace(/-/g, "").slice(0, 8).toUpperCase()
-    : ""
-
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(displayCode)
+      await navigator.clipboard.writeText(orderCode)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // fallback for older browsers
       const ta = document.createElement("textarea")
-      ta.value = displayCode
+      ta.value = orderCode
       document.body.appendChild(ta)
       ta.select()
       document.execCommand("copy")
@@ -78,7 +73,7 @@ export function SuccessModal({ orderCode, onClose }: Props) {
             : "شكراً لطلبك. سيتصل بك فريقنا في أقرب وقت ممكن لتأكيد التفاصيل وترتيب التوصيل."}
         </p>
 
-        {displayCode && (
+        {orderCode && (
           <div className="mt-6 p-4 rounded-2xl bg-[#FF5722]/5 border border-[#FF5722]/15">
             <p
               className={`text-xs text-neutral-500 mb-2 ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
@@ -91,7 +86,7 @@ export function SuccessModal({ orderCode, onClose }: Props) {
               <span
                 className={`text-lg font-mono font-bold tracking-wider text-[#FF5722] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
               >
-                {displayCode}
+                {orderCode}
               </span>
               <button
                 onClick={handleCopy}

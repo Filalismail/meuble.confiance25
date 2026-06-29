@@ -200,7 +200,7 @@ export function CheckoutPageContent({
     }
 
     clearCart()
-    setOrderCode(result.orderId ?? "")
+    setOrderCode(result.orderCode ?? "")
     setShowSuccess(true)
   }
 
