@@ -87,10 +87,18 @@ export function AnalyticsClient({ data, range }: Props) {
         sources={data.marketingSources.filter((s) => s.source !== "direct")}
         title="Provenance des visiteurs (les personnes importantes)"
       />
-      <SourceProportionBar
-        sources={data.marketingSources}
-        title="Provenance des visiteurs (tout)"
-      />
+
+      <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40 p-6 shadow-sm">
+        <h2 className="text-sm font-medium text-[#0A0A0A] mb-6">
+          Provenance des visiteurs (tout)
+        </h2>
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-bold text-[#0A0A0A] tabular-nums">
+            {data.marketingSources.reduce((s, r) => s + r.totalVisitors, 0)}
+          </span>
+          <span className="text-sm text-neutral-500">Visites</span>
+        </div>
+      </div>
 
       {data.geoDemand.length > 0 && <GeoTable rows={data.geoDemand} />}
 
