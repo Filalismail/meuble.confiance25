@@ -48,7 +48,7 @@ export async function sendOrderConfirmation(
     return
   }
 
-  const logoSrc = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/logo.jpg`
+  const logoSrc = `${process.env.NEXT_PUBLIC_BASE_URL}/logo.jpg`
 
   const emailHtml = await render(
     OrderConfirmationEmail({
