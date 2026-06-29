@@ -1,29 +1,11 @@
 import { Resend } from "resend"
 import { render } from "@react-email/components"
-import { readFileSync } from "fs"
-import { join } from "path"
 import { OrderConfirmationEmail } from "@/emails/order-confirmation"
 
 function getResend(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return null
   return new Resend(apiKey)
-}
-
-let cachedLogoSrc: string | null = null
-
-function getLogoSrc(): string {
-  if (cachedLogoSrc) return cachedLogoSrc
-  try {
-    const filePath = join(process.cwd(), "public", "logo.jpg")
-    const buffer = readFileSync(filePath)
-    const base64 = buffer.toString("base64")
-    cachedLogoSrc = `data:image/jpeg;base64,${base64}`
-  } catch {
-    console.warn("Failed to read logo.jpg — logo will be omitted from email")
-    cachedLogoSrc = ""
-  }
-  return cachedLogoSrc
 }
 
 async function withRetry<T>(
@@ -66,7 +48,7 @@ export async function sendOrderConfirmation(
     return
   }
 
-  const logoSrc = getLogoSrc()
+  const logoSrc = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/logo.jpg`
 
   const emailHtml = await render(
     OrderConfirmationEmail({
