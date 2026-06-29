@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -39,12 +39,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const closeMobile = useCallback(() => setIsMobileOpen(false), [])
 
+  const [prevDir] = useState(() => {
+    if (typeof window !== "undefined") return document.documentElement.dir
+    return "ltr"
+  })
+
+  useEffect(() => {
+    document.documentElement.dir = "ltr"
+    document.documentElement.lang = "fr"
+    return () => {
+      document.documentElement.dir = prevDir
+    }
+  }, [prevDir])
+
   const isLogin = pathname === ADMIN_BASE
 
   if (isLogin) return <>{children}</>
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA]" dir="ltr">
       <aside
         className={`fixed left-0 top-0 z-40 h-screen w-64 bg-white/70 backdrop-blur-2xl border-r border-[#E5E5E5]/60 flex flex-col transition-transform duration-300 ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
