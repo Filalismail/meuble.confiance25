@@ -90,7 +90,7 @@ export function AnalyticsClient({ data, range }: Props) {
 
       <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40 p-6 shadow-sm">
         <h2 className="text-sm font-medium text-[#0A0A0A] mb-6">
-          Provenance des visiteurs (tout)
+          Visits
         </h2>
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-bold text-[#0A0A0A] tabular-nums">
