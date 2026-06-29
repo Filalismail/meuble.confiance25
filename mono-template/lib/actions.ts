@@ -292,7 +292,7 @@ export async function submitOrder(
       console.error("Order insert error:", insertErr)
       return {
         success: false,
-        error: "Erreur: " + (insertErr?.message || "Erreur lors de la création de la commande"),
+        error: "Erreur lors de la création de la commande",
       }
     }
 
