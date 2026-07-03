@@ -19,6 +19,7 @@ interface AdminTableProps<T> {
   actions?: React.ReactNode
   emptyMessage?: string
   mobileCardRender: (item: T) => React.ReactNode
+  cardOnly?: boolean
 }
 
 export function AdminTable<T>({
@@ -29,6 +30,7 @@ export function AdminTable<T>({
   actions,
   emptyMessage = "Aucun résultat",
   mobileCardRender,
+  cardOnly = false,
 }: AdminTableProps<T>) {
   const [search, setSearch] = useState("")
   const [sortKey, setSortKey] = useState<string | null>(null)
@@ -86,64 +88,66 @@ export function AdminTable<T>({
         {actions && <div className="flex-shrink-0">{actions}</div>}
       </div>
 
-      <div className="hidden md:block">
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40 overflow-hidden shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#E5E5E5]/60">
-                {columns.map((col) => (
-                  <th
-                    key={col.key}
-                    className={`text-left px-5 py-4 text-xs font-medium text-neutral-500 uppercase tracking-wider ${
-                      col.hideOnMobile ? "hidden" : ""
-                    } ${col.sortable ? "cursor-pointer select-none hover:text-neutral-700" : ""}`}
-                    onClick={() => col.sortable && toggleSort(col.key)}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {col.label}
-                      {col.sortable && sortKey === col.key && (
-                        sortDir === "asc" ? <ChevronUp size={13} /> : <ChevronDown size={13} />
-                      )}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="px-5 py-16 text-center text-sm text-neutral-400"
-                  >
-                    {emptyMessage}
-                  </td>
+      {!cardOnly && (
+        <div className="hidden md:block">
+          <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40 overflow-hidden shadow-sm">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#E5E5E5]/60">
+                  {columns.map((col) => (
+                    <th
+                      key={col.key}
+                      className={`text-left px-5 py-4 text-xs font-medium text-neutral-500 uppercase tracking-wider ${
+                        col.hideOnMobile ? "hidden" : ""
+                      } ${col.sortable ? "cursor-pointer select-none hover:text-neutral-700" : ""}`}
+                      onClick={() => col.sortable && toggleSort(col.key)}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.label}
+                        {col.sortable && sortKey === col.key && (
+                          sortDir === "asc" ? <ChevronUp size={13} /> : <ChevronDown size={13} />
+                        )}
+                      </span>
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                filtered.map((item, idx) => (
-                  <tr
-                    key={String((item as Record<string, unknown>).id ?? idx)}
-                    className="border-b border-[#E5E5E5]/20 hover:bg-white/40 transition-colors last:border-0"
-                  >
-                    {columns.map((col) => (
-                      <td
-                        key={col.key}
-                        className={`px-5 py-4 ${col.hideOnMobile ? "hidden" : ""}`}
-                      >
-                        {col.render
-                          ? col.render(item)
-                          : ((item as Record<string, unknown>)[col.key] as React.ReactNode) ?? "—"}
-                      </td>
-                    ))}
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="px-5 py-16 text-center text-sm text-neutral-400"
+                    >
+                      {emptyMessage}
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filtered.map((item, idx) => (
+                    <tr
+                      key={String((item as Record<string, unknown>).id ?? idx)}
+                      className="border-b border-[#E5E5E5]/20 hover:bg-white/40 transition-colors last:border-0"
+                    >
+                      {columns.map((col) => (
+                        <td
+                          key={col.key}
+                          className={`px-5 py-4 ${col.hideOnMobile ? "hidden" : ""}`}
+                        >
+                          {col.render
+                            ? col.render(item)
+                            : ((item as Record<string, unknown>)[col.key] as React.ReactNode) ?? "—"}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="md:hidden space-y-3">
+      <div className={cardOnly ? "space-y-3" : "md:hidden space-y-3"}>
         {filtered.length === 0 ? (
           <div className="px-5 py-16 text-center text-sm text-neutral-400 bg-white/70 backdrop-blur-md rounded-2xl border border-[#E5E5E5]/40">
             {emptyMessage}

@@ -201,6 +201,7 @@ export function OrderListClient({ orders }: Props) {
         searchPlaceholder="Rechercher un client ou téléphone..."
         searchKeys={["id", "customer_first_name", "customer_last_name", "phone_number", "email"]}
         emptyMessage="Aucune commande trouvée"
+        cardOnly
         mobileCardRender={(o) => (
           <div className="p-4">
             <div
