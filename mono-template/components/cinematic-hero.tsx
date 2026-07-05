@@ -61,7 +61,8 @@ export function CinematicHero() {
       return new Promise((resolve) => {
         const img = document.createElement("img")
         const frameNum = String(index + 1).padStart(4, "0")
-        img.src = `/sequence/img-${frameNum}.webp`
+        const prefix = window.innerWidth < 768 ? "/mobile/photos" : "/sequence"
+        img.src = `${prefix}/img-${frameNum}.webp`
         img.onload = () => resolve()
         img.onerror = () => resolve()
         imagesRef.current[index] = img
