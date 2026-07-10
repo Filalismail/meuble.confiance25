@@ -177,14 +177,14 @@ export function CategoryPageContent({ slug }: { slug: string }) {
             </div>
 
             {/* Price Slider */}
-            <div className="flex-1 min-w-[180px] max-w-[260px]">
+            <div className="w-full sm:flex-1 sm:min-w-[180px] sm:max-w-[260px]">
               <div className="flex items-center justify-between mb-1">
                 <span
                   className={`text-[11px] text-neutral-500 ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
                 >
                   {locale === "fr" ? "Prix max" : "الحد الأقصى للسعر"}
                 </span>
-                <span className="text-[11px] font-medium text-[#FF5722]">
+                <span className="text-[11px] font-medium text-[#E64A19]">
                   {fmt(clampedPriceFilter, locale)} {currencySymbol(locale)}
                 </span>
               </div>
@@ -200,6 +200,7 @@ export function CategoryPageContent({ slug }: { slug: string }) {
                   max={globalMax}
                 value={clampedPriceFilter}
                  onChange={(e) => setPriceFilter(Number(e.target.value))}
+                  aria-label={locale === "fr" ? "Filtrer par prix maximum" : "تصفية حسب الحد الأقصى للسعر"}
                   style={{ direction: "ltr" }}
                   className="absolute inset-x-0 w-full h-6 appearance-none bg-transparent cursor-pointer z-10
                     [&::-webkit-slider-thumb]:appearance-none
@@ -230,6 +231,7 @@ export function CategoryPageContent({ slug }: { slug: string }) {
             <div className="relative">
               <button
                 onClick={() => setSortOpen(!sortOpen)}
+                aria-label={locale === "fr" ? "Trier les produits" : "ترتيب المنتجات"}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-sm text-neutral-700 transition-all whitespace-nowrap"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -341,14 +343,14 @@ export function CategoryPageContent({ slug }: { slug: string }) {
                   >
                     {locale === "fr" ? product.nameFr : product.nameAr}
                   </h3>
-                  <p className="text-[#FF5722] text-sm mt-1 font-medium">
+                  <p className="text-[#E64A19] text-sm mt-1 font-medium">
                     {locale === "fr" ? "À partir de" : "من"}{" "}
                     {fmt(product.basePrice, locale)} {product.currency}
                   </p>
 
                   <button
                     onClick={() => handleQuickAdd(product)}
-                    className="mt-4 w-full py-2.5 rounded-full border border-[#FF5722]/30 text-[#FF5722] text-xs font-medium hover:bg-[#FF5722] hover:text-white transition-all duration-300"
+                    className="mt-4 w-full py-2.5 rounded-full border border-[#E64A19]/30 text-[#E64A19] text-xs font-medium hover:bg-[#E64A19] hover:text-white transition-all duration-300"
                   >
                     {locale === "fr" ? "Ajouter au panier" : "أضف إلى السلة"}
                   </button>
