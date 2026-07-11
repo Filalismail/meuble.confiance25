@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import Image from "next/image"
 
 const TOTAL_FRAMES = 97
-const SCROLL_HEIGHT = 350
+const SCROLL_HEIGHT = 250
 
 export function CinematicHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
