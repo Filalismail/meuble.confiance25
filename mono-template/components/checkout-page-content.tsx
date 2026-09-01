@@ -216,11 +216,8 @@ export function CheckoutPageContent({
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-20" dir={isRTL ? "rtl" : "ltr"}>
         {/* Page Title */}
         <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#FF5722] text-xs tracking-[0.25em] uppercase font-medium">
-            {locale === "fr" ? "Finaliser la commande" : "إتمام الطلب"}
-          </span>
           <h1
-            className={`text-3xl md:text-4xl font-light mt-3 text-[#0A0A0A] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
+            className={`text-3xl md:text-4xl font-light text-[#0A0A0A] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
           >
             {locale === "fr" ? "Checkout" : "الدفع"}
           </h1>

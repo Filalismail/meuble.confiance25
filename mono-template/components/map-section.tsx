@@ -15,11 +15,8 @@ export function MapSection() {
     <section className="w-full bg-white py-24 md:py-32 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#FF5722] text-xs tracking-[0.25em] uppercase font-medium">
-            {locale === "fr" ? "Nous Trouver" : "جدنا"}
-          </span>
           <h2
-            className={`text-3xl md:text-5xl font-light mt-3 text-[#0A0A0A] ${
+            className={`text-3xl md:text-5xl font-light text-[#0A0A0A] ${
               isRTL ? "font-[family-name:var(--font-tajawal)]" : ""
             }`}
           >

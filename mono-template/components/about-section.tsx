@@ -18,11 +18,8 @@ export function AboutSection({ shopName = "Thika 25", shopNameAr = "ثقة 25" }
     >
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#FF5722] text-xs tracking-[0.25em] uppercase font-medium">
-            {locale === "fr" ? "Notre Histoire" : "قصتنا"}
-          </span>
           <h2
-            className={`text-3xl md:text-5xl font-light mt-3 text-[#0A0A0A] ${
+            className={`text-3xl md:text-5xl font-light text-[#0A0A0A] ${
               isRTL ? "font-[family-name:var(--font-tajawal)]" : ""
             }`}
           >

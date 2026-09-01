@@ -140,11 +140,8 @@ export function CategoryPageContent({ slug }: { slug: string }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute bottom-10 left-6 md:left-12 max-w-xl">
-          <span className="text-[#FF5722]/80 text-xs tracking-[0.25em] uppercase font-medium">
-            {locale === "fr" ? "Catégorie" : "قسم"}
-          </span>
           <h1
-            className={`text-3xl md:text-5xl font-light mt-2 text-white ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
+            className={`text-3xl md:text-5xl font-light text-white ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
           >
             {locale === "fr" ? category.nameFr : category.nameAr}
           </h1>
