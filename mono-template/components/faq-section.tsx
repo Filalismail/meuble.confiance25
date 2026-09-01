@@ -35,6 +35,7 @@ export function FaqSection() {
           >
             {locale === "fr" ? "FAQ" : "الأسئلة الشائعة"}
           </h2>
+          <div className="w-10 h-[1px] bg-[#FF5722]/40 mx-auto mt-6" />
         </div>
 
         <Accordion type="single" collapsible className="w-full">
