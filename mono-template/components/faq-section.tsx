@@ -28,17 +28,13 @@ export function FaqSection() {
     >
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#FF5722] text-xs tracking-[0.25em] uppercase font-medium">
-            {locale === "fr" ? "Questions" : "أسئلة"}
-          </span>
           <h2
-            className={`text-3xl md:text-5xl font-light mt-3 text-[#0A0A0A] ${
+            className={`text-3xl md:text-5xl font-light text-[#0A0A0A] ${
               isRTL ? "font-[family-name:var(--font-tajawal)]" : ""
             }`}
           >
             {locale === "fr" ? "FAQ" : "الأسئلة الشائعة"}
           </h2>
-          <div className="w-10 h-[1px] bg-[#FF5722]/40 mx-auto mt-6" />
         </div>
 
         <Accordion type="single" collapsible className="w-full">
@@ -49,7 +45,7 @@ export function FaqSection() {
               className="border-b border-[#E5E5E5] last:border-0"
             >
               <AccordionTrigger
-                className={`text-left text-base font-medium text-[#0A0A0A] hover:text-[#FF5722] transition-colors py-5 ${
+                className={`text-left text-base font-medium text-[#0A0A0A] hover:text-[#FF5722] data-[state=open]:text-[#FF5722] transition-colors py-5 ${
                   isRTL
                     ? "font-[family-name:var(--font-tajawal)] text-right"
                     : ""
