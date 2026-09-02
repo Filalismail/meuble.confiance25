@@ -6,15 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { getCategories, type Category } from "@/lib/categories"
 
-const spanMap: Record<number, string> = {
-  1: "md:col-span-2 md:row-span-2",
-  2: "md:col-span-1 md:row-span-1",
-  3: "md:col-span-1 md:row-span-1",
-  4: "md:col-span-1 md:row-span-1",
-  5: "md:col-span-1 md:row-span-1",
-  6: "md:col-span-1 md:row-span-1",
-  7: "md:col-span-3 md:row-span-1 md:aspect-[16/9]",
-}
+const spanMap: Record<number, string> = {}
 
 export function OurProductsSection() {
   const { locale, isRTL } = useLanguage()
@@ -46,7 +38,7 @@ export function OurProductsSection() {
               <Link
                 key={cat.id}
                 href={`/categories/${cat.slug}`}
-                className={`group relative ${spanMap[cat.sortOrder] ?? ""} rounded-3xl overflow-hidden cursor-pointer bg-[#F5F5F5] min-h-[180px] md:min-h-[240px] block`}
+                className={`group relative ${spanMap[cat.sortOrder] ?? ""} rounded-3xl overflow-hidden cursor-pointer bg-[#F5F5F5] aspect-[4/3] block`}
               >
                 {hasValidImage ? (
                   <Image
