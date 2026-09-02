@@ -28,7 +28,7 @@ export function CartSection() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] bg-white/70 backdrop-blur-2xl border-l border-white/20 shadow-2xl transition-transform duration-400 ease-out flex flex-col ${
+        className={`fixed top-2 right-2 bottom-2 sm:top-4 sm:right-4 sm:bottom-4 z-50 w-auto sm:w-[420px] bg-white/70 backdrop-blur-2xl rounded-[2rem] border border-black/5 shadow-2xl transition-transform duration-400 ease-out flex flex-col overflow-hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         dir={isRTL ? "rtl" : "ltr"}
