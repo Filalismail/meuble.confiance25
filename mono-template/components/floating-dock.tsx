@@ -10,22 +10,19 @@ import Image from "next/image"
 interface NavItem {
   id: string
   label: string
-  isCart: boolean
   hash: string
 }
 
 const navFr: NavItem[] = [
-  { id: "products", hash: "#products", label: "Nos Produits", isCart: false },
-  { id: "cart", hash: "", label: "Panier", isCart: true },
-  { id: "faq", hash: "#faq", label: "FAQ", isCart: false },
-  { id: "about", hash: "#about", label: "À Propos", isCart: false },
+  { id: "products", hash: "#products", label: "Nos Produits" },
+  { id: "faq", hash: "#faq", label: "FAQ" },
+  { id: "about", hash: "#about", label: "À Propos" },
 ]
 
 const navAr: NavItem[] = [
-  { id: "products", hash: "#products", label: "منتجاتنا", isCart: false },
-  { id: "cart", hash: "", label: "السلة", isCart: true },
-  { id: "faq", hash: "#faq", label: "الأسئلة الشائعة", isCart: false },
-  { id: "about", hash: "#about", label: "من نحن", isCart: false },
+  { id: "products", hash: "#products", label: "منتجاتنا" },
+  { id: "faq", hash: "#faq", label: "الأسئلة الشائعة" },
+  { id: "about", hash: "#about", label: "من نحن" },
 ]
 
 interface FloatingDockProps {
@@ -69,38 +66,23 @@ export function FloatingDock({ whatsappNumber = "213550585884" }: FloatingDockPr
           isRTL ? "font-[family-name:var(--font-tajawal)]" : ""
         }`}
       >
-        {nav.map((item) =>
-          item.isCart ? (
-            <button
-              key={item.id}
-              onClick={toggleCart}
-              className="text-neutral-800 hover:text-[#FF5722] transition-colors duration-200 whitespace-nowrap relative"
-            >
-              {item.label}
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-3 w-4 h-4 rounded-full bg-[#FF5722] text-white text-[10px] flex items-center justify-center font-bold leading-none">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          ) : (
-            <Link
-              key={item.id}
-              href={linkHref(item.hash)}
-              className="text-neutral-800 hover:text-[#FF5722] transition-colors duration-200 whitespace-nowrap"
-            >
-              {item.label}
-            </Link>
-          )
-        )}
+        {nav.map((item) => (
+          <Link
+            key={item.id}
+            href={linkHref(item.hash)}
+            className="text-neutral-800 hover:text-[#FF5722] transition-colors duration-200 whitespace-nowrap"
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
 
-      {/* Mobile Cart + Right side items */}
-      <div className="flex items-center gap-1.5 sm:gap-3">
-        {/* Shopping Cart — visible on mobile */}
+      {/* Right side: Cart + Language + WhatsApp */}
+      <div className="flex items-center gap-4 sm:gap-5">
+        {/* Cart Icon */}
         <button
           onClick={toggleCart}
-          className="sm:hidden w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-[#FF5722] transition-colors relative"
+          className="relative w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-[#FF5722] transition-colors"
           aria-label={locale === "fr" ? "Panier" : "السلة"}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -142,6 +124,7 @@ export function FloatingDock({ whatsappNumber = "213550585884" }: FloatingDockPr
           href={`https://wa.me/${whatsappNumber}`}
           target="_blank"
           rel="noreferrer"
+          aria-label="WhatsApp"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF5722]/40 bg-[#FF5722]/10 hover:bg-[#FF5722]/20 transition-all text-xs text-neutral-800"
         >
           <span className="w-2 h-2 rounded-full bg-[#FF5722] animate-pulse-glow" />
