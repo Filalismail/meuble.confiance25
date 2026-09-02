@@ -27,7 +27,7 @@ export function MapSection() {
 
         <div className="flex flex-col items-center gap-8">
           {/* Circular on desktop, rounded-rect on mobile */}
-          <div className="w-full max-w-lg rounded-[3rem] md:rounded-full aspect-video md:aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
+          <div className="relative w-full max-w-lg rounded-[3rem] md:rounded-full aspect-video md:aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
             <iframe
               src={GOOGLE_MAPS_URL}
               width="100%"
@@ -37,7 +37,7 @@ export function MapSection() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Meuble Confiance Constantine"
-              className="w-full h-full"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[130%] h-[130%] pointer-events-auto"
             />
           </div>
 
