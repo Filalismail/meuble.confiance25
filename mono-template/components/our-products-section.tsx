@@ -56,7 +56,8 @@ export function OurProductsSection() {
 
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-500" />
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 bg-gradient-to-t from-white/80 via-white/40 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-white/95 via-white/50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
                   <div className="flex items-center justify-between">
                     <h3
                       className={`text-sm md:text-base font-medium text-[#0A0A0A] ${isRTL ? "font-[family-name:var(--font-tajawal)]" : ""}`}
