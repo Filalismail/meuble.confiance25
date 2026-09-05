@@ -11,7 +11,7 @@ const OPEN_IN_MAPS_URL =
 
 export function MapSection() {
   const { locale, isRTL } = useLanguage()
-  const [mapInteracted, setMapInteracted] = useState(false)
+  const [isMapActive, setIsMapActive] = useState(false)
 
   return (
     <section className="w-full bg-white py-24 md:py-32 px-6">
@@ -28,9 +28,9 @@ export function MapSection() {
         </div>
 
         <div className="flex flex-col items-center gap-8">
-          {/* Map container */}
-          <div className="relative w-full max-w-lg rounded-[3rem] md:rounded-full aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
-            {/* Iframe — pointer-events-none on mobile until overlay is tapped */}
+          {/* Map container — isolate creates a stacking context for z-index layering */}
+          <div className="relative isolate w-full max-w-lg rounded-[3rem] md:rounded-full aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
+            {/* Iframe — z-0, pointer-events-none on mobile until overlay tapped */}
             <iframe
               src={GOOGLE_MAPS_URL}
               width="100%"
@@ -40,18 +40,18 @@ export function MapSection() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Meuble Confiance Constantine"
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 origin-center md:scale-[1.75] md:w-full md:h-full md:top-0 md:left-0 md:translate-x-0 md:translate-y-0 ${
-                mapInteracted
-                  ? "w-[160%] h-[160%] pointer-events-auto"
-                  : "w-[160%] h-[160%] pointer-events-none md:pointer-events-auto"
+              className={`absolute z-0 origin-center ${
+                isMapActive
+                  ? "inset-0 w-full h-full pointer-events-auto"
+                  : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-none md:inset-0 md:w-full md:h-full md:translate-x-0 md:translate-y-0 md:pointer-events-auto md:scale-[1.75]"
               }`}
             />
 
-            {/* Mobile glass overlay — hidden once tapped */}
+            {/* Glassmorphic overlay — z-20, blocks all touch to iframe */}
             <div
-              onClick={() => setMapInteracted(true)}
-              className={`md:hidden absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[1px] cursor-pointer transition-opacity duration-500 ${
-                mapInteracted
+              onClick={() => setIsMapActive(true)}
+              className={`absolute inset-0 z-20 flex items-center justify-center bg-black/10 backdrop-blur-[1px] cursor-pointer transition-opacity duration-500 ${
+                isMapActive
                   ? "opacity-0 pointer-events-none"
                   : "opacity-100 pointer-events-auto"
               }`}
