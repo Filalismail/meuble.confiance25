@@ -1,15 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { useLanguage } from "@/components/language-provider"
 
 const GOOGLE_MAPS_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1zNjU4bSEyZTE!2d6.5862099!3d36.382474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f1770077fb4077%3A0x90367569b3d1e626!2sMeuble%20Confiance%20Constantine!5e0!3m2!1sfr!2sdz!4v1&gestureHandling=greedy"
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1zNjU4bSEyZTE!2d6.5862099!3d36.382474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f1770077fb4077%3A0x90367569b3d1e626!2sMeuble%20Confiance%20Constantine!5e0!3m2!1sfr!2sdz!4v1"
 
 const OPEN_IN_MAPS_URL =
   "https://www.google.com/maps/place/Meuble+Confiance+Constantine/@36.382474,6.5862099,658m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12f1770077fb4077:0x90367569b3d1e626!8m2!3d36.3824697!4d6.5887848!16s%2Fg%2F11w_y6lckz?entry=ttu&g_ep=EgoyMDI2MDYxMC4wIKXMDSoASAFQAw%3D%3D"
 
 export function MapSection() {
   const { locale, isRTL } = useLanguage()
+  const [mapInteracted, setMapInteracted] = useState(false)
 
   return (
     <section className="w-full bg-white py-24 md:py-32 px-6">
@@ -26,8 +28,9 @@ export function MapSection() {
         </div>
 
         <div className="flex flex-col items-center gap-8">
-          {/* Circular on desktop, rounded-rect on mobile */}
+          {/* Map container */}
           <div className="relative w-full max-w-lg rounded-[3rem] md:rounded-full aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
+            {/* Iframe — pointer-events-none on mobile until overlay is tapped */}
             <iframe
               src={GOOGLE_MAPS_URL}
               width="100%"
@@ -37,8 +40,34 @@ export function MapSection() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Meuble Confiance Constantine"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-auto"
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 origin-center md:scale-[1.75] md:w-full md:h-full md:top-0 md:left-0 md:translate-x-0 md:translate-y-0 ${
+                mapInteracted
+                  ? "w-[160%] h-[160%] pointer-events-auto"
+                  : "w-[160%] h-[160%] pointer-events-none md:pointer-events-auto"
+              }`}
             />
+
+            {/* Mobile glass overlay — hidden once tapped */}
+            <div
+              onClick={() => setMapInteracted(true)}
+              className={`md:hidden absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[1px] cursor-pointer transition-opacity duration-500 ${
+                mapInteracted
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-100 pointer-events-auto"
+              }`}
+            >
+              <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-lg">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1" />
+                  <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v6" />
+                  <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
+                  <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                </svg>
+                <span className="text-xs font-medium text-[#0A0A0A]">
+                  {locale === "fr" ? "Appuyez pour interagir" : "اضغط للتفاعل"}
+                </span>
+              </div>
+            </div>
           </div>
 
           <a
