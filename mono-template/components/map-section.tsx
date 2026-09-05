@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useLanguage } from "@/components/language-provider"
 
 const GOOGLE_MAPS_URL =
@@ -11,7 +10,6 @@ const OPEN_IN_MAPS_URL =
 
 export function MapSection() {
   const { locale, isRTL } = useLanguage()
-  const [isMapActive, setIsMapActive] = useState(false)
 
   return (
     <section className="w-full bg-white py-24 md:py-32 px-6">
@@ -28,9 +26,8 @@ export function MapSection() {
         </div>
 
         <div className="flex flex-col items-center gap-8">
-          {/* Map container — isolate creates a stacking context for z-index layering */}
-          <div className="relative isolate w-full max-w-lg rounded-[3rem] md:rounded-full aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
-            {/* Iframe — z-0, pointer-events-none on mobile until overlay tapped */}
+          {/* Square card on mobile, circular on desktop */}
+          <div className="relative w-full max-w-lg rounded-2xl md:rounded-full aspect-square overflow-hidden border-4 border-white/20 shadow-2xl shadow-black/10">
             <iframe
               src={GOOGLE_MAPS_URL}
               width="100%"
@@ -40,34 +37,8 @@ export function MapSection() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Meuble Confiance Constantine"
-              className={`absolute z-0 origin-center ${
-                isMapActive
-                  ? "inset-0 w-full h-full pointer-events-auto"
-                  : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-none md:inset-0 md:w-full md:h-full md:translate-x-0 md:translate-y-0 md:pointer-events-auto md:scale-[1.75]"
-              }`}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-auto md:top-0 md:left-0 md:translate-x-0 md:translate-y-0 md:w-full md:h-full md:scale-[1.75] md:origin-center"
             />
-
-            {/* Glassmorphic overlay — z-20, blocks all touch to iframe */}
-            <div
-              onClick={() => setIsMapActive(true)}
-              className={`absolute inset-0 z-20 flex items-center justify-center bg-black/10 backdrop-blur-[1px] cursor-pointer transition-opacity duration-500 ${
-                isMapActive
-                  ? "opacity-0 pointer-events-none"
-                  : "opacity-100 pointer-events-auto"
-              }`}
-            >
-              <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-lg">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1" />
-                  <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v6" />
-                  <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
-                  <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
-                </svg>
-                <span className="text-xs font-medium text-[#0A0A0A]">
-                  {locale === "fr" ? "Appuyez pour interagir" : "اضغط للتفاعل"}
-                </span>
-              </div>
-            </div>
           </div>
 
           <a
