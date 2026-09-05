@@ -37,7 +37,7 @@ export function MapSection() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Meuble Confiance Constantine"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-auto md:top-0 md:left-0 md:translate-x-0 md:translate-y-0 md:w-full md:h-full md:scale-[1.75] md:origin-center"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-auto"
             />
           </div>
 
