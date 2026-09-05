@@ -3,7 +3,7 @@
 import { useLanguage } from "@/components/language-provider"
 
 const GOOGLE_MAPS_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1zNjU4bSEyZTE!2d6.5862099!3d36.382474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f1770077fb4077%3A0x90367569b3d1e626!2sMeuble%20Confiance%20Constantine!5e0!3m2!1sfr!2sdz!4v1"
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1zNjU4bSEyZTE!2d6.5862099!3d36.382474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f1770077fb4077%3A0x90367569b3d1e626!2sMeuble%20Confiance%20Constantine!5e0!3m2!1sfr!2sdz!4v1&gestureHandling=greedy"
 
 const OPEN_IN_MAPS_URL =
   "https://www.google.com/maps/place/Meuble+Confiance+Constantine/@36.382474,6.5862099,658m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12f1770077fb4077:0x90367569b3d1e626!8m2!3d36.3824697!4d6.5887848!16s%2Fg%2F11w_y6lckz?entry=ttu&g_ep=EgoyMDI2MDYxMC4wIKXMDSoASAFQAw%3D%3D"
