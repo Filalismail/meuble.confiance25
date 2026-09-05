@@ -112,9 +112,7 @@ export function CinematicHero() {
         if (imagesRef.current[frameIndex]) {
           drawFrame(frameIndex)
         }
-        if (frameIndex >= TOTAL_FRAMES - 1) {
-          setShowIntro(false)
-        }
+        setShowIntro(frameIndex < TOTAL_FRAMES - 1)
       })
     }
 
